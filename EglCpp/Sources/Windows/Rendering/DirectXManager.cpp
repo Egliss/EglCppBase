@@ -119,7 +119,7 @@ ComPtr<IDXGISwapChain1> DirectXManager::CreateSwapChain(ComPtr<ID3D12CommandQueu
 	swapChainDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.AlphaMode = DXGI_ALPHA_MODE::DXGI_ALPHA_MODE_UNSPECIFIED;
 	swapChainDesc.Scaling = DXGI_SCALING::DXGI_SCALING_NONE;
-	swapChainDesc.BufferCount = 2;
+	swapChainDesc.BufferCount = SwapChainBufferCount;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.Stereo = false;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;

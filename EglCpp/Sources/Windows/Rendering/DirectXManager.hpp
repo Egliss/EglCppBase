@@ -13,6 +13,8 @@ namespace Egliss::Rendering
 		static void Finalize();
 
 	private:
+		static constexpr unsigned int SwapChainBufferCount = 2;
+		using SwapChainRTVArrayT = std::array<ComPtr<ID3D12Resource1>, SwapChainBufferCount>;
 		static std::unique_ptr<DirectXManager> _instance;
 
 		ComPtr<IDXGIAdapter1> _dxgiAdapter;
@@ -23,6 +25,7 @@ namespace Egliss::Rendering
 		ComPtr<ID3D12CommandQueue> _renderingQueue;
 		ComPtr<ID3D12CommandQueue> _computeQueue;
 		ComPtr<ID3D12CommandQueue> _copyQueue;
+		SwapChainRTVArrayT _swapchainRTV;
 
 		void InitializeInternal();
 		static ComPtr<ID3D12Debug3> CreateDebugLayer();
