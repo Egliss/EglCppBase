@@ -10,7 +10,6 @@ namespace Egliss
 		virtual ~IApplicationComponent() {}
 
 		virtual void Initialize() = 0;
-		virtual void Update() = 0;
 		virtual void Finalize() = 0;
 
 		virtual std::string Name() const = 0;

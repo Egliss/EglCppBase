@@ -12,6 +12,8 @@ namespace Egliss::Reflection
 		// ÉNÉâÉXÇÃñºèÃ
 		// static constexpr std::string_view Name = "NameSpace::ClassName";
 	};
+	template<class T>
+	using StaticType = StaticTypeDescription<T>;
 }
 
 #include "StaticType.inl"

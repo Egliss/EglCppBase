@@ -6,6 +6,8 @@
 #include <functional>
 #include <algorithm>
 
+#include "StaticType.hpp"
+
 namespace Egliss::Reflection
 {
 	class DynamicTypeDescription
@@ -47,7 +49,7 @@ namespace Egliss::Reflection
 		{
 			return _indexedTypes[index];
 		}
-		static const DynamicTypeDescription& TypeNameOf(const std::string& typeName)
+		static const DynamicTypeDescription& QueryType(const std::string& typeName)
 		{
 			auto index = _typesindices.at(typeName);
 			return IndexOf(index);

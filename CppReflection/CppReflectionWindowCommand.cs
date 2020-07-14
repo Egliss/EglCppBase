@@ -107,6 +107,7 @@ namespace CppReflection
                 var directory = Path.GetDirectoryName(project.Project.FileName);
                 ClassExporter.OutputCppFile(description, $"{directory}\\Sources\\Reflection\\DynamicType.cpp");
                 ClassExporter.OutputInlineFile(description, $"{directory}\\Sources\\Reflection\\StaticType.inl");
+                Instance.OutputPane.OutputString($"class export succeed.\n");
             });
         }
     }

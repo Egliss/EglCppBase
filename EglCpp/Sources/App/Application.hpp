@@ -29,6 +29,6 @@ namespace Egliss
 
 	private:
 		static std::unique_ptr<IApplicationImpl> _impl;
-		std::vector<std::unique_ptr<IApplicationComponent>> _components;
+		static std::vector<std::unique_ptr<IApplicationComponent>> _components;
 	};
 }
