@@ -39,8 +39,6 @@ void DirectXManager::InitializeInternal()
 	this->_computeQueue = DirectXManager::CreateCommandQueue(this->_device, CommandListType::Compute);
 	this->_copyQueue = DirectXManager::CreateCommandQueue(this->_device, CommandListType::Copy);
 	this->_swapChain = DirectXManager::CreateSwapChain(this->_renderingQueue, this->_dxgiFactory, hwnd);
-
-	this->HeapDescriptorByteSize = DirectXManager::GetHeapByteSizeArray(this->_device);
 }
 ComPtr<ID3D12Debug3> DirectXManager::CreateDebugLayer()
 {
@@ -147,16 +145,9 @@ ComPtr<IDXGISwapChain1> DirectXManager::CreateSwapChain(ComPtr<ID3D12CommandQueu
 }
 
 
-std::array<unsigned int, 4> DirectXManager::GetHeapByteSizeArray(ComPtr<ID3D12Device6> device)
+unsigned int DirectXManager::GetHeapByteSize(ComPtr<ID3D12Device6> device, DescriptorHeapType type)
 {
-	std::array<unsigned int, 4> bytes;
-
-	bytes[static_cast<int>(DescriptorHeapType::ConstantBuffer)] = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	bytes[static_cast<int>(DescriptorHeapType::Sampler)] = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-	bytes[static_cast<int>(DescriptorHeapType::Rendertarget)] = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	bytes[static_cast<int>(DescriptorHeapType::DepthStencil)] = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-
-	return bytes;
+	return device->GetDescriptorHandleIncrementSize(static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(type));
 }
 
 ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptor(ComPtr<ID3D12Device6> device, DescriptorHeapType type, int elementCount, bool accessFromShader)

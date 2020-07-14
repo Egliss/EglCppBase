@@ -24,8 +24,6 @@ namespace Egliss::Rendering
 		ComPtr<ID3D12CommandQueue> _computeQueue;
 		ComPtr<ID3D12CommandQueue> _copyQueue;
 
-		std::array<unsigned int, 4> HeapDescriptorByteSize;
-
 		void InitializeInternal();
 		static ComPtr<ID3D12Debug3> CreateDebugLayer();
 		static ComPtr<IDXGIFactory4> CreateDXGIFactory();
@@ -34,7 +32,7 @@ namespace Egliss::Rendering
 		static ComPtr<ID3D12CommandQueue> CreateCommandQueue(ComPtr<ID3D12Device6> device, CommandListType type);
 		static ComPtr<IDXGISwapChain1> CreateSwapChain(ComPtr<ID3D12CommandQueue> queue, ComPtr<IDXGIFactory4> factory, HWND hwnd);
 		static ComPtr<ID3D12DescriptorHeap> CreateDescriptor(ComPtr<ID3D12Device6> device, DescriptorHeapType type, int elementCount, bool accessFromShader);
+		static unsigned int GetHeapByteSize(ComPtr<ID3D12Device6> device,DescriptorHeapType type);
 
-		static std::array<unsigned int, 4> GetHeapByteSizeArray(ComPtr<ID3D12Device6> device);
 	};
 }
