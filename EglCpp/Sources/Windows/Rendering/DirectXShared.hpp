@@ -8,6 +8,7 @@ struct IDXGISwapChain1;
 struct ID3D12Device6;
 struct ID3D12Debug3;
 struct ID3D12CommandQueue;
+struct ID3D12CommandList;
 struct ID3D12DescriptorHeap;
 
 namespace Egliss::Rendering

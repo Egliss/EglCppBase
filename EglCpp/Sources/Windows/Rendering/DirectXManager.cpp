@@ -58,9 +58,26 @@ ComPtr<IDXGIFactory4> DirectXManager::CreateDXGIFactory()
 	ComPtr<IDXGIFactory4> factory;
 	const auto result = CreateDXGIFactory2(0, __uuidof(IDXGIFactory4), (void**)factory.ReleaseAndGetAddressOf());
 	if (FAILED(result))
-		throw std::exception("create dxgi factory was failed");
+		throw std::exception("create dxgi factory was failed.");
 
 	return factory;
+}
+
+DirectXManager::SwapChainRTVArrayT DirectXManager::CreateSwapchainRTV(ComPtr<ID3D12Device6> device, ComPtr<IDXGISwapChain3> swapchain, ComPtr<ID3D12DescriptorHeap> heap)
+{
+	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
+	const auto HeapStrid = DirectXManager::GetHeapByteSize(device, DescriptorHeapType::RenderTarget);
+	SwapChainRTVArrayT array;
+	for (auto L10 = 0U; L10 < DirectXManager::SwapChainBufferCount; L10) 
+	{
+		auto result = swapchain->GetBuffer(L10, __uuidof(ID3D12Resource1), (void**)array[L10].GetAddressOf());
+		if (FAILED(result))
+			throw std::exception("query swapchain buffer was failed.");
+
+		handle.ptr = L10 * HeapStrid;
+		device->CreateRenderTargetView(array[L10].Get(), nullptr, handle);
+	}
+	return array;
 }
 ComPtr<IDXGIAdapter1> DirectXManager::CreateDXGIAdapter(ComPtr<IDXGIFactory4> factory)
 {
@@ -109,6 +126,22 @@ ComPtr<ID3D12CommandQueue> DirectXManager::CreateCommandQueue(ComPtr<ID3D12Devic
 	return queue;
 }
 
+ComPtr<ID3D12CommandList> DirectXManager::CreateCommandList(ComPtr<ID3D12Device6> device, CommandListType type)
+{
+	ComPtr<ID3D12CommandList> commandList;
+	const auto result = device->CreateCommandList1(
+		0, 
+		static_cast<D3D12_COMMAND_LIST_TYPE>(type), 
+		D3D12_COMMAND_LIST_FLAG_NONE,
+		__uuidof(ID3D12CommandList),
+		(void**)commandList.ReleaseAndGetAddressOf()
+	);
+	if(FAILED(result))
+		throw std::exception("create command list was failed.");
+
+	return commandList;
+}
+
 ComPtr<IDXGISwapChain1> DirectXManager::CreateSwapChain(ComPtr<ID3D12CommandQueue> queue, ComPtr<IDXGIFactory4> factory, HWND hwnd)
 {
 	ComPtr<IDXGISwapChain1> swapChain;
@@ -150,7 +183,7 @@ unsigned int DirectXManager::GetHeapByteSize(ComPtr<ID3D12Device6> device, Descr
 	return device->GetDescriptorHandleIncrementSize(static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(type));
 }
 
-ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptor(ComPtr<ID3D12Device6> device, DescriptorHeapType type, int elementCount, bool accessFromShader)
+ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptorHeap(ComPtr<ID3D12Device6> device, DescriptorHeapType type, int elementCount, bool accessFromShader)
 {
 	ComPtr<ID3D12DescriptorHeap> heap;
 	D3D12_DESCRIPTOR_HEAP_DESC desc;
@@ -159,7 +192,7 @@ ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptor(ComPtr<ID3D12Devic
 	desc.Type = static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(type);
 	desc.NodeMask = 0;
 
-	const auto result = device->CreateDescriptorHeap(nullptr, __uuidof(ID3D12DescriptorHeap), (void**)heap.ReleaseAndGetAddressOf());
+	const auto result = device->CreateDescriptorHeap(&desc, __uuidof(ID3D12DescriptorHeap), (void**)heap.ReleaseAndGetAddressOf());
 
 	if (FAILED(result))
 		throw std::exception("create descriptor heap was failed.");
