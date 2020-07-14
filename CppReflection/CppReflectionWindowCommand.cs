@@ -105,8 +105,8 @@ namespace CppReflection
                 var tree = TypeDeriverTree.MakeTree(components, baseComponent);
                 var description = TypeDescription.CreateDescription(tree);
                 var directory = Path.GetDirectoryName(project.Project.FileName);
-                ClassExporter.OutputCppFile(description, $"{directory}\\Sources\\Generated\\DynamicType.cpp");
-                ClassExporter.OutputInlineFile(description, $"{directory}\\Sources\\Generated\\StaticType.inl");
+                ClassExporter.OutputCppFile(description, $"{directory}\\Sources\\Reflection\\DynamicType.cpp");
+                ClassExporter.OutputInlineFile(description, $"{directory}\\Sources\\Reflection\\StaticType.inl");
             });
         }
     }
