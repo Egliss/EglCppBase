@@ -18,12 +18,21 @@ std::unique_ptr<DirectXManager> DirectXManager::_instance;
 
 void DirectXManager::Initialize()
 {
-	DirectXManager::_instance = std::make_unique<DirectXManager>();
-	DirectXManager::_instance->InitializeInternal();
+	auto instance = std::make_unique<DirectXManager>();
+	instance->InitializeInternal();
+	DirectXManager::_instance = std::move(instance);
 }
 
 void DirectXManager::Finalize()
 {
+}
+
+void DirectXManager::Draw()
+{
+	if (!DirectXManager::_instance)
+		return;
+	
+	DirectXManager::_instance->Rendering();
 }
 
 void DirectXManager::InitializeInternal()
