@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "DirectXManager.hpp"
 #include <Win.hpp>
-
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
@@ -10,6 +9,8 @@
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
+
+#include "Math/Random.hpp"
 
 using namespace Egliss;
 using namespace Egliss::Rendering;
@@ -51,17 +52,17 @@ void DirectXManager::InitializeInternal()
 	this->_swapChainDescriptorHeap = DirectXManager::CreateDescriptorHeap(this->_device, DescriptorHeapType::RenderTarget, SwapChainBufferCount, false);
 	this->_swapChainRTV = DirectXManager::CreateSwapChainRTV(this->_device, this->_swapChain, this->_swapChainDescriptorHeap);
 	this->_commandAllocator = DirectXManager::CreateCommandAllocator(this->_device, CommandListType::Direct);
-	this->_commandList = DirectXManager::CreateCommandList(this->_device, this->_commandAllocator, CommandListType::Direct);
+	this->_graphicsCommandList = DirectXManager::CreateGraphicsCommandList(this->_device, this->_commandAllocator, CommandListType::Direct);
 }
 ComPtr<ID3D12Debug3> DirectXManager::CreateDebugLayer()
 {
 	ComPtr<ID3D12Debug3> debug;
-	// TODO query in release build ?
-	D3D12GetDebugInterface(__uuidof(ID3D12Debug3), (void**)debug.ReleaseAndGetAddressOf());
 #ifdef _DEBUG
-	debug->EnableDebugLayer();
-	debug->SetEnableGPUBasedValidation(true);
-	debug->SetEnableSynchronizedCommandQueueValidation(true);
+	// TODO query in release build ?
+	// D3D12GetDebugInterface(__uuidof(ID3D12Debug3), (void**)debug.ReleaseAndGetAddressOf());
+	// debug->EnableDebugLayer();
+	// debug->SetEnableGPUBasedValidation(true);
+	// debug->SetEnableSynchronizedCommandQueueValidation(true);
 #endif // _DEBUG
 	return debug;
 
@@ -106,7 +107,7 @@ ComPtr<IDXGIAdapter1> DirectXManager::CreateDXGIAdapter(ComPtr<IDXGIFactory4> fa
 
 		// try constructable device
 		// 
-		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_1, __uuidof(ID3D12Device6), nullptr)))
+		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device6), nullptr)))
 			return adapter;
 	}
 	throw std::exception("directX12 device adapter not found.");
@@ -114,13 +115,15 @@ ComPtr<IDXGIAdapter1> DirectXManager::CreateDXGIAdapter(ComPtr<IDXGIFactory4> fa
 
 ComPtr<ID3D12Device6> DirectXManager::CreateDevice(ComPtr<IDXGIAdapter1> adapter)
 {
-	ComPtr<ID3D12Device6> device;
-	const auto result = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_1, __uuidof(ID3D12Device6), (void**)device.ReleaseAndGetAddressOf());
+	ComPtr<ID3D12Device6> device6;
+	ComPtr<ID3D12Device> device;
+	const auto result = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), (void**)device.ReleaseAndGetAddressOf());
+	device.As(&device6);
 
 	if (FAILED(result))
 		throw std::exception("directx 12 adapter found but, device initialize failed");
 
-	return device;
+	return device6;
 }
 
 ComPtr<ID3D12CommandQueue> DirectXManager::CreateCommandQueue(ComPtr<ID3D12Device6> device, CommandListType type)
@@ -140,21 +143,39 @@ ComPtr<ID3D12CommandQueue> DirectXManager::CreateCommandQueue(ComPtr<ID3D12Devic
 	return queue;
 }
 
-ComPtr<ID3D12CommandList> DirectXManager::CreateCommandList(ComPtr<ID3D12Device6> device, ComPtr<ID3D12CommandAllocator> allocator,CommandListType type)
+ComPtr<ID3D12CommandList> DirectXManager::CreateCommandList(ComPtr<ID3D12Device6> device, ComPtr<ID3D12CommandAllocator> allocator, CommandListType type)
 {
 	ComPtr<ID3D12CommandList> commandList;
-	const auto result = device->CreateCommandList(
-		0,
-		static_cast<D3D12_COMMAND_LIST_TYPE>(type),
-		allocator.Get(),
-		nullptr,
-		__uuidof(ID3D12CommandList),
-		(void**)commandList.ReleaseAndGetAddressOf()
-	);
+	const auto result =
+		device->CreateCommandList(0,
+								  static_cast<D3D12_COMMAND_LIST_TYPE>(type),
+								  allocator.Get(),
+								  nullptr,
+								  __uuidof(ID3D12CommandList),
+								  (void**)commandList.ReleaseAndGetAddressOf());
 	if (FAILED(result))
 		throw std::exception("create command list was failed.");
 
 	return commandList;
+}
+
+ComPtr<ID3D12GraphicsCommandList5> DirectXManager::CreateGraphicsCommandList(ComPtr<ID3D12Device6> device, ComPtr<ID3D12CommandAllocator> allocator, CommandListType type)
+{
+	ComPtr<ID3D12GraphicsCommandList> graphicsCommandList;
+	ComPtr<ID3D12GraphicsCommandList5> graphicsCommandList5;
+
+	const auto result =
+		device->CreateCommandList(0,
+								  static_cast<D3D12_COMMAND_LIST_TYPE>(type),
+								  allocator.Get(),
+								  nullptr,
+								  __uuidof(ID3D12GraphicsCommandList),
+								  (void**)graphicsCommandList.ReleaseAndGetAddressOf());
+	if (FAILED(result))
+		throw std::exception("create graphics command list was failed.");
+	graphicsCommandList.As(&graphicsCommandList5);
+
+	return graphicsCommandList5;
 }
 
 ComPtr<ID3D12CommandAllocator> DirectXManager::CreateCommandAllocator(ComPtr<ID3D12Device6> device, CommandListType type)
@@ -199,7 +220,7 @@ ComPtr<IDXGISwapChain3> DirectXManager::CreateSwapChain(ComPtr<ID3D12CommandQueu
 	const auto result = factory->CreateSwapChainForHwnd(queue.Get(), hwnd, &swapChainDesc, nullptr, nullptr/* multi monitor */, swapChain.ReleaseAndGetAddressOf());
 
 	// query interface IDXGISwapChain3
-	swapChain3.As(&swapChain3);
+	swapChain.As(&swapChain3);
 
 	if (FAILED(result))
 		throw std::exception("create swapchain was failed.");
@@ -229,21 +250,41 @@ ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptorHeap(ComPtr<ID3D12D
 
 	return heap;
 }
+#include <ctime>
+#include <cmath>
+#include <chrono>
 
 void DirectXManager::Rendering()
 {
 	const auto hwnd = Application::GetImplAs<WinImpl>().GetHWND();
 	RECT rect;
 	GetClientRect(hwnd, &rect);
+	const auto now = std::chrono::system_clock::now().time_since_epoch();
+	const auto miliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+	const auto seed = std::fmod((double)miliseconds, 100000.0) / 1000.0f;
+	const auto r = std::sinf(seed);
+	const auto g = std::cosf(seed);
+	const auto b = std::tanf(seed);
+	const auto a = 1.0f;
 
-	float clearColor[4] = { 1.0f,0.0f,0.0f,0.0f };
+	float clearColor[4] = { r,g,b,a };
 	D3D12_VIEWPORT viewport;
 	viewport.TopLeftX = 0; viewport.TopLeftY = 0;
 	viewport.Width = static_cast<float>(rect.right - rect.left);
 	viewport.Height = static_cast<float>(rect.bottom - rect.top);
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	
-	int targetIndex = this->_swapChain->GetCurrentBackBufferIndex();
 
+	const auto rtvIndex = this->_swapChain->GetCurrentBackBufferIndex();
+	auto rtvHandle = this->_swapChainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	rtvHandle.ptr += DirectXManager::GetHeapByteSize(this->_device, DescriptorHeapType::RenderTarget) * rtvIndex;
+	this->_graphicsCommandList->RSSetViewports(1, &viewport);
+	this->_graphicsCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+	this->_graphicsCommandList->Close();
+
+	ID3D12CommandList* commandList = this->_graphicsCommandList.Get();
+	this->_renderingQueue->ExecuteCommandLists(1, &commandList);
+	this->_swapChain->Present(1, 0);
+	this->_commandAllocator->Reset();
+	this->_graphicsCommandList->Reset(this->_commandAllocator.Get(), nullptr);
 }

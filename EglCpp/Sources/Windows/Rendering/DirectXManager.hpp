@@ -11,7 +11,7 @@ namespace Egliss::Rendering
 	public:
 		static void Initialize();
 		static void Finalize();
-
+		static void Draw();
 	private:
 		static constexpr unsigned int SwapChainBufferCount = 2;
 		using SwapChainRTVArrayT = std::array<ComPtr<ID3D12Resource1>, SwapChainBufferCount>;
@@ -26,7 +26,7 @@ namespace Egliss::Rendering
 		ComPtr<ID3D12CommandQueue> _computeQueue;
 		ComPtr<ID3D12CommandQueue> _copyQueue;
 		ComPtr<ID3D12CommandAllocator> _commandAllocator;
-		ComPtr<ID3D12CommandList> _commandList;
+		ComPtr<ID3D12GraphicsCommandList5> _graphicsCommandList;
 		ComPtr<ID3D12DescriptorHeap> _swapChainDescriptorHeap;
 		SwapChainRTVArrayT _swapChainRTV;
 
@@ -38,6 +38,7 @@ namespace Egliss::Rendering
 		static ComPtr<ID3D12Device6> CreateDevice(ComPtr<IDXGIAdapter1> adapter);
 		static ComPtr<ID3D12CommandQueue> CreateCommandQueue(ComPtr<ID3D12Device6> device, CommandListType type);
 		static ComPtr<ID3D12CommandList> CreateCommandList(ComPtr<ID3D12Device6> device, ComPtr<ID3D12CommandAllocator> allocator, CommandListType type);
+		static ComPtr<ID3D12GraphicsCommandList5> CreateGraphicsCommandList(ComPtr<ID3D12Device6> device, ComPtr<ID3D12CommandAllocator> allocator, CommandListType type);
 		static ComPtr<ID3D12CommandAllocator> CreateCommandAllocator(ComPtr<ID3D12Device6> device, CommandListType type);
 		static ComPtr<IDXGISwapChain3> CreateSwapChain(ComPtr<ID3D12CommandQueue> queue, ComPtr<IDXGIFactory4> factory, HWND hwnd);
 		static ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(ComPtr<ID3D12Device6> device, DescriptorHeapType type, int elementCount, bool accessFromShader);
