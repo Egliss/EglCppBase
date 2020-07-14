@@ -6,13 +6,14 @@ struct IDXGIFactory4;
 struct IDXGIAdapter1;
 struct IDXGISwapChain3;
 struct ID3D12Device6;
-struct ID3D12Debug3;
+struct ID3D12Debug;
 struct ID3D12CommandQueue;
 struct ID3D12CommandList;
 struct ID3D12DescriptorHeap;
-struct ID3D12Resource1;
+struct ID3D12Resource;
 struct ID3D12CommandAllocator;
-struct ID3D12GraphicsCommandList5;
+struct ID3D12GraphicsCommandList;
+struct ID3D12Fence;
 
 namespace Egliss::Rendering
 {
