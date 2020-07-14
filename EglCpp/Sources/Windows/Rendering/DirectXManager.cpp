@@ -67,7 +67,7 @@ ComPtr<IDXGIFactory4> DirectXManager::CreateDXGIFactory()
 	return factory;
 }
 
-DirectXManager::SwapChainRTVArrayT DirectXManager::CreateSwapChainRTV(ComPtr<ID3D12Device6> device, ComPtr<IDXGISwapChain1> swapchain, ComPtr<ID3D12DescriptorHeap> heap)
+DirectXManager::SwapChainRTVArrayT DirectXManager::CreateSwapChainRTV(ComPtr<ID3D12Device6> device, ComPtr<IDXGISwapChain3> swapchain, ComPtr<ID3D12DescriptorHeap> heap)
 {
 	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
 	const auto HeapStrid = DirectXManager::GetHeapByteSize(device, DescriptorHeapType::RenderTarget);
@@ -159,9 +159,10 @@ ComPtr<ID3D12CommandAllocator> DirectXManager::CreateCommandAllocator(ComPtr<ID3
 	return allocator;
 }
 
-ComPtr<IDXGISwapChain1> DirectXManager::CreateSwapChain(ComPtr<ID3D12CommandQueue> queue, ComPtr<IDXGIFactory4> factory, HWND hwnd)
+ComPtr<IDXGISwapChain3> DirectXManager::CreateSwapChain(ComPtr<ID3D12CommandQueue> queue, ComPtr<IDXGIFactory4> factory, HWND hwnd)
 {
 	ComPtr<IDXGISwapChain1> swapChain;
+	ComPtr<IDXGISwapChain3> swapChain3;
 
 	RECT rect;
 	GetClientRect(hwnd, &rect);
@@ -188,10 +189,13 @@ ComPtr<IDXGISwapChain1> DirectXManager::CreateSwapChain(ComPtr<ID3D12CommandQueu
 
 	const auto result = factory->CreateSwapChainForHwnd(queue.Get(), hwnd, &swapChainDesc, nullptr, nullptr/* multi monitor */, swapChain.ReleaseAndGetAddressOf());
 
+	// query interface IDXGISwapChain3
+	swapChain3.As(&swapChain3);
+
 	if (FAILED(result))
 		throw std::exception("create swapchain was failed.");
 
-	return swapChain;
+	return swapChain3;
 }
 
 
@@ -215,4 +219,22 @@ ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptorHeap(ComPtr<ID3D12D
 		throw std::exception("create descriptor heap was failed.");
 
 	return heap;
+}
+
+void DirectXManager::Rendering()
+{
+	const auto hwnd = Application::GetImplAs<WinImpl>().GetHWND();
+	RECT rect;
+	GetClientRect(hwnd, &rect);
+
+	float clearColor[4] = { 1.0f,0.0f,0.0f,0.0f };
+	D3D12_VIEWPORT viewport;
+	viewport.TopLeftX = 0; viewport.TopLeftY = 0;
+	viewport.Width = static_cast<float>(rect.right - rect.left);
+	viewport.Height = static_cast<float>(rect.bottom - rect.top);
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	
+	int targetIndex = this->_swapChain->GetCurrentBackBufferIndex();
+
 }
