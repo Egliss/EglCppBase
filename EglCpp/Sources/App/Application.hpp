@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IApplicationImpl.h"
-#include "IApplicationInitializeArg.h"
+#include "IApplicationImpl.hpp"
+#include "IApplicationInitializeArg.hpp"
 
 #include <memory>
 

@@ -3,8 +3,8 @@
 #ifdef _WIN32
 #include "App/Application.hpp"
 #include "Windows/WindowsShared.hpp"
-#include "Windows/WindowsApplicationImpl.h"
-#include "Windows/WindowsInitializeArg.h"
+#include "Windows/WindowsApplicationImpl.hpp"
+#include "Windows/WindowsInitializeArg.hpp"
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {

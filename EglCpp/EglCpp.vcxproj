@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" 
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -230,6 +229,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Sources\App\Application.cpp" />
+    <ClCompile Include="Sources\Math\Random.cpp" />
     <ClCompile Include="Sources\Windows\Rendering\DirectXManager.cpp" />
     <ClCompile Include="Sources\Windows\WindowsApplicationImpl.cpp" />
     <ClCompile Include="Sources\pch.cpp">
@@ -242,13 +242,14 @@
   <ItemGroup>
     <ClInclude Include="Sources\App\AppConfiguration.hpp" />
     <ClInclude Include="Sources\App\Application.hpp" />
+    <ClInclude Include="Sources\Math\Random.hpp" />
     <ClInclude Include="Sources\Windows\Rendering\DirectXManager.hpp" />
     <ClInclude Include="Sources\Windows\Rendering\DirectXShared.hpp" />
     <ClInclude Include="Sources\Win.hpp" />
-    <ClInclude Include="Sources\Windows\WindowsApplicationImpl.h" />
-    <ClInclude Include="Sources\App\IApplicationImpl.h" />
-    <ClInclude Include="Sources\App\IApplicationInitializeArg.h" />
-    <ClInclude Include="Sources\Windows\WindowsInitializeArg.h" />
+    <ClInclude Include="Sources\Windows\WindowsApplicationImpl.hpp" />
+    <ClInclude Include="Sources\App\IApplicationImpl.hpp" />
+    <ClInclude Include="Sources\App\IApplicationInitializeArg.hpp" />
+    <ClInclude Include="Sources\Windows\WindowsInitializeArg.hpp" />
     <ClCompile Include="Sources\Windows\EntryPoint.cpp">
       <FileType>CppHeader</FileType>
     </ClCompile>

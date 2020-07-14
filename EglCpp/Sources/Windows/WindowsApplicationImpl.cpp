@@ -4,8 +4,8 @@
 #include "../App/AppConfiguration.hpp"
 #include "WindowsShared.hpp"
 #include "WindowStyle.hpp"
-#include "WindowsApplicationImpl.h"
-#include "WindowsInitializeArg.h"
+#include "WindowsApplicationImpl.hpp"
+#include "WindowsInitializeArg.hpp"
 
 #include "Rendering/DirectXManager.hpp"
 
@@ -87,6 +87,11 @@ LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam,
 	std::cout << message << std::endl;
 	switch (message)
 	{
+	case WM_MOUSEMOVE:
+	{
+		Egliss::Rendering::DirectXManager::Draw();
+		break;
+	}
 	case WM_SIZE:
 	{
 		break;
