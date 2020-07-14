@@ -31,6 +31,6 @@ enum class DescriptorHeapType
 {
 	ConstantBuffer = 0, ShaderResource = 0, UnorderedAccess = 0,
 	Sampler = 1,
-	Rendertarget = 2,
+	RenderTarget = 2,
 	DepthStencil = 3,
 };
