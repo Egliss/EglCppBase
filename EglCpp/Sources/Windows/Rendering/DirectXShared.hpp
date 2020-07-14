@@ -11,6 +11,7 @@ struct ID3D12CommandQueue;
 struct ID3D12CommandList;
 struct ID3D12DescriptorHeap;
 struct ID3D12Resource1;
+struct ID3D12CommandAllocator;
 
 namespace Egliss::Rendering
 {

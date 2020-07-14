@@ -41,7 +41,8 @@ void DirectXManager::InitializeInternal()
 	this->_swapChain = DirectXManager::CreateSwapChain(this->_renderingQueue, this->_dxgiFactory, hwnd);
 	this->_swapChainDescriptorHeap = DirectXManager::CreateDescriptorHeap(this->_device, DescriptorHeapType::RenderTarget, SwapChainBufferCount, false);
 	this->_swapChainRTV = DirectXManager::CreateSwapChainRTV(this->_device, this->_swapChain, this->_swapChainDescriptorHeap);
-	this->_commandList = DirectXManager::CreateCommandList(this->_device, CommandListType::Direct);
+	this->_commandAllocator = DirectXManager::CreateCommandAllocator(this->_device, CommandListType::Direct);
+	this->_commandList = DirectXManager::CreateCommandList(this->_device, this->_commandAllocator, CommandListType::Direct);
 }
 ComPtr<ID3D12Debug3> DirectXManager::CreateDebugLayer()
 {
@@ -130,13 +131,14 @@ ComPtr<ID3D12CommandQueue> DirectXManager::CreateCommandQueue(ComPtr<ID3D12Devic
 	return queue;
 }
 
-ComPtr<ID3D12CommandList> DirectXManager::CreateCommandList(ComPtr<ID3D12Device6> device, CommandListType type)
+ComPtr<ID3D12CommandList> DirectXManager::CreateCommandList(ComPtr<ID3D12Device6> device, ComPtr<ID3D12CommandAllocator> allocator,CommandListType type)
 {
 	ComPtr<ID3D12CommandList> commandList;
-	const auto result = device->CreateCommandList1(
+	const auto result = device->CreateCommandList(
 		0,
 		static_cast<D3D12_COMMAND_LIST_TYPE>(type),
-		D3D12_COMMAND_LIST_FLAG_NONE,
+		allocator.Get(),
+		nullptr,
 		__uuidof(ID3D12CommandList),
 		(void**)commandList.ReleaseAndGetAddressOf()
 	);
@@ -144,6 +146,17 @@ ComPtr<ID3D12CommandList> DirectXManager::CreateCommandList(ComPtr<ID3D12Device6
 		throw std::exception("create command list was failed.");
 
 	return commandList;
+}
+
+ComPtr<ID3D12CommandAllocator> DirectXManager::CreateCommandAllocator(ComPtr<ID3D12Device6> device, CommandListType type)
+{
+	ComPtr<ID3D12CommandAllocator> allocator;
+	const auto result = device->CreateCommandAllocator(static_cast<D3D12_COMMAND_LIST_TYPE>(type), __uuidof(ID3D12CommandAllocator), (void**)allocator.ReleaseAndGetAddressOf());
+
+	if (FAILED(result))
+		throw std::exception("create command allocator was failed.");
+
+	return allocator;
 }
 
 ComPtr<IDXGISwapChain1> DirectXManager::CreateSwapChain(ComPtr<ID3D12CommandQueue> queue, ComPtr<IDXGIFactory4> factory, HWND hwnd)
