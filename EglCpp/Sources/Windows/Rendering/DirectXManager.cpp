@@ -39,6 +39,9 @@ void DirectXManager::InitializeInternal()
 	this->_computeQueue = DirectXManager::CreateCommandQueue(this->_device, CommandListType::Compute);
 	this->_copyQueue = DirectXManager::CreateCommandQueue(this->_device, CommandListType::Copy);
 	this->_swapChain = DirectXManager::CreateSwapChain(this->_renderingQueue, this->_dxgiFactory, hwnd);
+	this->_swapChainDescriptorHeap = DirectXManager::CreateDescriptorHeap(this->_device, DescriptorHeapType::RenderTarget, SwapChainBufferCount, false);
+	this->_swapChainRTV = DirectXManager::CreateSwapChainRTV(this->_device, this->_swapChain, this->_swapChainDescriptorHeap);
+	this->_commandList = DirectXManager::CreateCommandList(this->_device, CommandListType::Direct);
 }
 ComPtr<ID3D12Debug3> DirectXManager::CreateDebugLayer()
 {
@@ -63,21 +66,22 @@ ComPtr<IDXGIFactory4> DirectXManager::CreateDXGIFactory()
 	return factory;
 }
 
-DirectXManager::SwapChainRTVArrayT DirectXManager::CreateSwapchainRTV(ComPtr<ID3D12Device6> device, ComPtr<IDXGISwapChain3> swapchain, ComPtr<ID3D12DescriptorHeap> heap)
+DirectXManager::SwapChainRTVArrayT DirectXManager::CreateSwapChainRTV(ComPtr<ID3D12Device6> device, ComPtr<IDXGISwapChain1> swapchain, ComPtr<ID3D12DescriptorHeap> heap)
 {
 	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
 	const auto HeapStrid = DirectXManager::GetHeapByteSize(device, DescriptorHeapType::RenderTarget);
 	SwapChainRTVArrayT array;
-	for (auto L10 = 0U; L10 < DirectXManager::SwapChainBufferCount; L10) 
+	for (auto L10 = 0U; L10 < DirectXManager::SwapChainBufferCount; L10++)
 	{
 		auto result = swapchain->GetBuffer(L10, __uuidof(ID3D12Resource1), (void**)array[L10].GetAddressOf());
 		if (FAILED(result))
 			throw std::exception("query swapchain buffer was failed.");
 
-		handle.ptr = L10 * HeapStrid;
 		device->CreateRenderTargetView(array[L10].Get(), nullptr, handle);
+		// step next loop addresss
+		handle.ptr += HeapStrid;
 	}
-	return array;
+	return std::move(array);
 }
 ComPtr<IDXGIAdapter1> DirectXManager::CreateDXGIAdapter(ComPtr<IDXGIFactory4> factory)
 {
@@ -130,13 +134,13 @@ ComPtr<ID3D12CommandList> DirectXManager::CreateCommandList(ComPtr<ID3D12Device6
 {
 	ComPtr<ID3D12CommandList> commandList;
 	const auto result = device->CreateCommandList1(
-		0, 
-		static_cast<D3D12_COMMAND_LIST_TYPE>(type), 
+		0,
+		static_cast<D3D12_COMMAND_LIST_TYPE>(type),
 		D3D12_COMMAND_LIST_FLAG_NONE,
 		__uuidof(ID3D12CommandList),
 		(void**)commandList.ReleaseAndGetAddressOf()
 	);
-	if(FAILED(result))
+	if (FAILED(result))
 		throw std::exception("create command list was failed.");
 
 	return commandList;

@@ -26,14 +26,13 @@ namespace Egliss::Rendering
 		ComPtr<ID3D12CommandQueue> _computeQueue;
 		ComPtr<ID3D12CommandQueue> _copyQueue;
 		ComPtr<ID3D12CommandList> _commandList;
-		ComPtr<ID3D12DescriptorHeap> _swapchainDescriptorHeap;
-		SwapChainRTVArrayT _swapchainRTV;
+		ComPtr<ID3D12DescriptorHeap> _swapChainDescriptorHeap;
+		SwapChainRTVArrayT _swapChainRTV;
 
 		void InitializeInternal();
 		static ComPtr<ID3D12Debug3> CreateDebugLayer();
 		static ComPtr<IDXGIFactory4> CreateDXGIFactory();
-		static ComPtr<IUnknown> CreateSwapchainDescriptorHeap(ComPtr<ID3D12Device6> device);
-		static SwapChainRTVArrayT CreateSwapchainRTV(ComPtr<ID3D12Device6> device,ComPtr<IDXGISwapChain3> swapchain, ComPtr<ID3D12DescriptorHeap> heap);
+		static SwapChainRTVArrayT CreateSwapChainRTV(ComPtr<ID3D12Device6> device,ComPtr<IDXGISwapChain1> swapchain, ComPtr<ID3D12DescriptorHeap> heap);
 		static ComPtr<IDXGIAdapter1> CreateDXGIAdapter(ComPtr<IDXGIFactory4> factory);
 		static ComPtr<ID3D12Device6> CreateDevice(ComPtr<IDXGIAdapter1> adapter);
 		static ComPtr<ID3D12CommandQueue> CreateCommandQueue(ComPtr<ID3D12Device6> device, CommandListType type);
