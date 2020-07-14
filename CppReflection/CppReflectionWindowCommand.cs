@@ -79,26 +79,26 @@ namespace CppReflection
                 var project = node.FindProjectByName(TargetProjectName);
                 if (project == null)
                 {
-                    Instance.OutputPane.OutputString($"ProjectName'{ TargetProjectName }' not found");
+                    Instance.OutputPane.OutputString($"ProjectName'{ TargetProjectName }' not found\n");
                     return;
                 }
 
-                // プロジェクトをお好みの形で加工する
                 var baseComponentName = "Egliss::IApplicationComponent";
                 var vcClasses = project.RootNode
                     .FindAllOf<ClassNode>();
                 var baseComponent = vcClasses.Where(m => m.FullName == "global::" + baseComponentName).FirstOrDefault();
                 if (baseComponent == null)
                 {
-                    Instance.OutputPane.OutputString($"the class({baseComponentName}) not found");
+                    Instance.OutputPane.OutputString($"the class({baseComponentName}) not found\n");
                     return;
                 }
                 var components = vcClasses
                     .Where(m => m.VCClass.IsDerivedFrom[baseComponentName])
                     .ToList();
+
                 if (components.Count == 0)
                 {
-                    Instance.OutputPane.OutputString($"{baseComponentName}'s child class not found");
+                    Instance.OutputPane.OutputString($"{baseComponentName}'s child class not found\n");
                     return;
                 }
 
