@@ -8,7 +8,8 @@ namespace Egliss
 	class WindowsApplicationImpl : public IApplicationImpl
 	{
 	public:
-		virtual ~WindowsApplicationImpl() = default;
+		WindowsApplicationImpl();
+		virtual ~WindowsApplicationImpl();
 
 		virtual bool Initialize(IApplicationInitializeArg&& arg) override;
 		virtual void Finalize() override;

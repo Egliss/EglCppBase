@@ -117,3 +117,18 @@ LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam,
 	}
 	return 0;
 }
+
+WindowsApplicationImpl::WindowsApplicationImpl()
+{
+	if (OleInitialize(nullptr) >= 0)
+	{
+		CoUninitialize();
+		CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	}
+}
+
+WindowsApplicationImpl::~WindowsApplicationImpl()
+{
+	CoUninitialize();
+	OleUninitialize();
+}

@@ -2,7 +2,9 @@
 
 #include "IApplicationImpl.hpp"
 #include "IApplicationInitializeArg.hpp"
+#include "IApplicationComponent.hpp"
 
+#include <vector>
 #include <memory>
 
 namespace Egliss
@@ -27,5 +29,6 @@ namespace Egliss
 
 	private:
 		static std::unique_ptr<IApplicationImpl> _impl;
+		std::vector<std::unique_ptr<IApplicationComponent>> _components;
 	};
 }

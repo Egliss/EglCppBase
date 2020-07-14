@@ -229,6 +229,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Sources\App\Application.cpp" />
+    <ClCompile Include="Sources\App\Dummy.cpp" />
     <ClCompile Include="Sources\Math\Random.cpp" />
     <ClCompile Include="Sources\Windows\Rendering\DirectXManager.cpp" />
     <ClCompile Include="Sources\Windows\WindowsApplicationImpl.cpp" />
@@ -242,6 +243,8 @@
   <ItemGroup>
     <ClInclude Include="Sources\App\AppConfiguration.hpp" />
     <ClInclude Include="Sources\App\Application.hpp" />
+    <ClInclude Include="Sources\App\Dummy.hpp" />
+    <ClInclude Include="Sources\App\IApplicationComponent.hpp" />
     <ClInclude Include="Sources\Math\Random.hpp" />
     <ClInclude Include="Sources\Windows\Rendering\DirectXManager.hpp" />
     <ClInclude Include="Sources\Windows\Rendering\DirectXShared.hpp" />
