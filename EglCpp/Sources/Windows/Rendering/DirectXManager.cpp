@@ -57,14 +57,20 @@ void DirectXManager::InitializeInternal()
 ComPtr<ID3D12Debug3> DirectXManager::CreateDebugLayer()
 {
 	ComPtr<ID3D12Debug3> debug;
+	ComPtr<ID3D12Debug3> debug3;
 #ifdef _DEBUG
 	// TODO query in release build ?
-	// D3D12GetDebugInterface(__uuidof(ID3D12Debug3), (void**)debug.ReleaseAndGetAddressOf());
-	// debug->EnableDebugLayer();
-	// debug->SetEnableGPUBasedValidation(true);
-	// debug->SetEnableSynchronizedCommandQueueValidation(true);
+	const auto result = D3D12GetDebugInterface(__uuidof(ID3D12Debug), (void**)debug.ReleaseAndGetAddressOf());
+	if (FAILED(result))
+		throw std::exception("debug layer initialize failed.");
+	if(FAILED(debug3.As(&debug)))
+		throw std::exception("debug layer initialize failed.");
+
+	debug3->EnableDebugLayer();
+	debug3->SetEnableGPUBasedValidation(true);
+	debug3->SetEnableSynchronizedCommandQueueValidation(true);
 #endif // _DEBUG
-	return debug;
+	return debug3;
 
 }
 ComPtr<IDXGIFactory4> DirectXManager::CreateDXGIFactory()
@@ -106,7 +112,6 @@ ComPtr<IDXGIAdapter1> DirectXManager::CreateDXGIAdapter(ComPtr<IDXGIFactory4> fa
 			continue;
 
 		// try constructable device
-		// 
 		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device6), nullptr)))
 			return adapter;
 	}
@@ -117,10 +122,12 @@ ComPtr<ID3D12Device6> DirectXManager::CreateDevice(ComPtr<IDXGIAdapter1> adapter
 {
 	ComPtr<ID3D12Device6> device6;
 	ComPtr<ID3D12Device> device;
-	const auto result = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), (void**)device.ReleaseAndGetAddressOf());
-	device.As(&device6);
 
+	const auto result = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), (void**)device.ReleaseAndGetAddressOf());
+	
 	if (FAILED(result))
+		throw std::exception("directx 12 adapter found but, device initialize failed");
+	if (FAILED(device.As(&device6)))
 		throw std::exception("directx 12 adapter found but, device initialize failed");
 
 	return device6;
@@ -173,7 +180,8 @@ ComPtr<ID3D12GraphicsCommandList5> DirectXManager::CreateGraphicsCommandList(Com
 								  (void**)graphicsCommandList.ReleaseAndGetAddressOf());
 	if (FAILED(result))
 		throw std::exception("create graphics command list was failed.");
-	graphicsCommandList.As(&graphicsCommandList5);
+	if (FAILED(graphicsCommandList.As(&graphicsCommandList5)))
+		throw std::exception("create graphics command list was failed.");
 
 	return graphicsCommandList5;
 }
@@ -219,10 +227,9 @@ ComPtr<IDXGISwapChain3> DirectXManager::CreateSwapChain(ComPtr<ID3D12CommandQueu
 
 	const auto result = factory->CreateSwapChainForHwnd(queue.Get(), hwnd, &swapChainDesc, nullptr, nullptr/* multi monitor */, swapChain.ReleaseAndGetAddressOf());
 
-	// query interface IDXGISwapChain3
-	swapChain.As(&swapChain3);
-
 	if (FAILED(result))
+		throw std::exception("create swapchain was failed.");
+	if (FAILED(swapChain.As(&swapChain3)))
 		throw std::exception("create swapchain was failed.");
 
 	return swapChain3;
