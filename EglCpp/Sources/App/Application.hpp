@@ -3,9 +3,10 @@
 #include "IApplicationImpl.hpp"
 #include "IApplicationInitializeArg.hpp"
 #include "IApplicationComponent.hpp"
+#include "Reflection/StaticType.hpp"
 
-#include <vector>
 #include <memory>
+#include <map>
 
 namespace Egliss
 {
@@ -26,9 +27,19 @@ namespace Egliss
 		{
 			return *_impl.get();
 		}
+		template<class T>
+		static T& GetAppComponent()
+		{
+			// GetAppComponent failed. the type is ambiguous definition
+			constexpr auto id = Reflection::StaticType<T>::Id;
+		#ifdef _DEBUG
+			constexpr auto name = Reflection::StaticType<T>::Name;
+		#endif // _DEBUG
+			return static_cast<T&>(*_components[id].get());
+		}
 
 	private:
 		static std::unique_ptr<IApplicationImpl> _impl;
-		static std::vector<std::unique_ptr<IApplicationComponent>> _components;
+		static std::map<int, std::unique_ptr<IApplicationComponent>> _components;
 	};
 }

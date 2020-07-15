@@ -6,6 +6,8 @@
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
 
+#include "../../App/Components/Random.hpp"
+
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -303,7 +305,7 @@ void DirectXManager::Rendering()
 	const auto r = std::sinf(seed);
 	const auto g = std::cosf(seed);
 	const auto b = std::tanf(seed);
-	const auto a = 1.0f;
+	const auto a = 0.1f;
 
 	float clearColor[4] = { r,g,b,a };
 	D3D12_VIEWPORT viewport;
@@ -317,6 +319,9 @@ void DirectXManager::Rendering()
 	auto rtvHandle = this->_swapChainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	rtvHandle.ptr += DirectXManager::GetHeapByteSize(this->_device, DescriptorHeapType::RenderTarget) * rtvIndex;
 
+	auto random = Application::GetAppComponent<Random>();
+	auto v = random.Range(0.0f, 1.0f);
+	
 	SetResourceBarrier(this->_graphicsCommandList.Get(), this->_swapChainRTV[rtvIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	this->_graphicsCommandList->RSSetViewports(1, &viewport);
 	this->_graphicsCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);

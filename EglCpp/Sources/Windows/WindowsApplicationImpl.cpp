@@ -27,7 +27,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
 	wcex.hCursor = LoadCursorA(hInstance, (const char*)IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wcex.lpszMenuName = "";
 	wcex.lpszClassName = AppConfiguration::ApplicationClassName.data();
 	wcex.hIcon = 0;
@@ -56,6 +56,9 @@ bool InitInstance(HINSTANCE handleInstance, int nCmdShow, HWND& outHWND)
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
+	auto style = GetWindowLongA(hWnd, GWL_EXSTYLE);
+	SetWindowLongA(hWnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
+	SetLayeredWindowAttributes(hWnd,RGB(0, 0, 0),0, LWA_COLORKEY);
 
 	return true;
 }
@@ -87,6 +90,7 @@ LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam,
 	std::cout << message << std::endl;
 	switch (message)
 	{
+	case WM_MOUSEWHEEL:
 	case WM_MOUSEMOVE:
 	{
 		Egliss::Rendering::DirectXManager::Draw();

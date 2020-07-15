@@ -7,7 +7,7 @@
 using namespace Egliss;
 
 std::unique_ptr<IApplicationImpl> Application::_impl = std::unique_ptr<IApplicationImpl>(nullptr);
-std::vector<std::unique_ptr<IApplicationComponent>> Application::_components;
+std::map<int, std::unique_ptr<IApplicationComponent>> Application::_components;
 
 bool Application::Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicationInitializeArg&& arg)
 {
@@ -27,7 +27,8 @@ bool Application::Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicat
 		if (!type.HasTypeRelation(interfaceId))
 			continue;
 		auto ptr = std::unique_ptr<IAppComponent>(reinterpret_cast<IAppComponent*>(type.constructor()));
-		Application::_components.emplace_back(std::move(ptr));
+		ptr->Initialize();
+		Application::_components.emplace(type.Id(), std::move(ptr));
 	}
 	return true;
 }
