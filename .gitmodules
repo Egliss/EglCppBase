@@ -1,0 +1,3 @@
+[submodule "EglCpp/External/fmt"]
+	path = EglCpp/External/fmt
+	url = git@github.com:fmtlib/fmt.git

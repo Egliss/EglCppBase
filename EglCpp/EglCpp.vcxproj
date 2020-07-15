@@ -117,7 +117,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <ShowIncludes>false</ShowIncludes>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)Sources</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Sources;$(ProjectDir)External\fmt\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,7 +150,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <ShowIncludes>false</ShowIncludes>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)Sources</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Sources;$(ProjectDir)External\fmt\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -183,7 +183,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <ShowIncludes>false</ShowIncludes>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)Sources</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Sources;$(ProjectDir)External\fmt\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -216,7 +216,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <ShowIncludes>false</ShowIncludes>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)Sources</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Sources;$(ProjectDir)External\fmt\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -228,9 +228,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="External\fmt\src\format.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="External\fmt\src\os.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Sources\App\Application.cpp" />
     <ClCompile Include="Sources\Reflection\DynamicType.cpp" />
     <ClCompile Include="Sources\App\Components\Random.cpp" />
+    <ClCompile Include="Sources\Utility\StringUtility.cpp" />
     <ClCompile Include="Sources\Windows\Rendering\DirectXManager.cpp" />
     <ClCompile Include="Sources\Windows\WindowsApplicationImpl.cpp" />
     <ClCompile Include="Sources\pch.cpp">
@@ -247,9 +260,11 @@
     <ClInclude Include="Sources\App\Components\Random.hpp" />
     <ClInclude Include="Sources\Reflection\DynamicType.hpp" />
     <ClInclude Include="Sources\Reflection\StaticType.hpp" />
+    <ClInclude Include="Sources\Utility\StringUtility.h" />
     <ClInclude Include="Sources\Windows\Rendering\DirectXManager.hpp" />
     <ClInclude Include="Sources\Windows\Rendering\DirectXShared.hpp" />
     <ClInclude Include="Sources\Win.hpp" />
+    <ClInclude Include="Sources\Windows\Rendering\Texture2D.hpp" />
     <ClInclude Include="Sources\Windows\WindowsApplicationImpl.hpp" />
     <ClInclude Include="Sources\App\IApplicationImpl.hpp" />
     <ClInclude Include="Sources\App\IApplicationInitializeArg.hpp" />
