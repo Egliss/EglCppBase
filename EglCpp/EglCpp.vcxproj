@@ -275,6 +275,8 @@
     <ClInclude Include="Sources\Reflection\DynamicType.hpp" />
     <ClInclude Include="Sources\Reflection\StaticType.hpp" />
     <ClInclude Include="Sources\Utility\DateTime.hpp" />
+    <ClInclude Include="Sources\Utility\Event.hpp" />
+    <ClInclude Include="Sources\Utility\IndexlizedDictionary.hpp" />
     <ClInclude Include="Sources\Utility\MemoryUtility.hpp" />
     <ClInclude Include="Sources\Utility\Stream.hpp" />
     <ClInclude Include="Sources\Utility\StreamReader.hpp" />
