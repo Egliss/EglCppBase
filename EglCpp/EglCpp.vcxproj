@@ -246,6 +246,7 @@
     <ClCompile Include="Sources\Math\Quaternion.cpp" />
     <ClCompile Include="Sources\Reflection\DynamicType.cpp" />
     <ClCompile Include="Sources\App\Components\Random.cpp" />
+    <ClCompile Include="Sources\Utility\DateTime.cpp" />
     <ClCompile Include="Sources\Utility\StringUtility.cpp" />
     <ClCompile Include="Sources\Windows\Dialog\Dialog.cpp" />
     <ClCompile Include="Sources\Windows\Rendering\DirectXManager.cpp" />
@@ -271,6 +272,7 @@
     <ClInclude Include="Sources\Math\XMath.hpp" />
     <ClInclude Include="Sources\Reflection\DynamicType.hpp" />
     <ClInclude Include="Sources\Reflection\StaticType.hpp" />
+    <ClInclude Include="Sources\Utility\DateTime.hpp" />
     <ClInclude Include="Sources\Utility\MemoryUtility.hpp" />
     <ClInclude Include="Sources\Utility\StringUtility.hpp" />
     <ClInclude Include="Sources\Windows\Dialog\Dialog.hpp" />
