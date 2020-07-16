@@ -11,7 +11,7 @@ namespace Egliss
 	public:
 		Random() = default;
 		~Random() = default;
-		
+
 		virtual void Initialize() override;
 		virtual void Finalize() override;
 		virtual std::string Name() const override;
@@ -21,6 +21,6 @@ namespace Egliss
 	private:
 		class _Impl;
 
-		_Impl* _impl;
+		_Impl* _impl = nullptr;
 	};
 }
