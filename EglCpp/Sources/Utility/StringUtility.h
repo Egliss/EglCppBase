@@ -141,8 +141,9 @@ namespace Egliss
 			return ICaseCompare(s1, s2) == 0;
 		}
 
-		static std::string& Replace(std::string& dest, char from, char to)
+		static std::string Replace(char from, char to)
 		{
+			std::string dest;
 			for (auto L10 = 0U; L10 < dest.length(); L10++)
 			{
 				if (dest[L10] == from)
@@ -150,8 +151,8 @@ namespace Egliss
 			}
 			return dest;
 		}
-		static std::string& Replace(std::string& dest, char from, const std::string& to);
-		static std::string& Replace(std::string& dest, const std::string& from, const std::string& to);
+		static std::string Replace(char from, const std::string& to);
+		static std::string Replace(const std::string& from, const std::string& to);
 
 		static std::string Repeat(char word, int count)
 		{
