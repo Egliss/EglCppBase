@@ -3,7 +3,7 @@
 #include <stack>
 #include <filesystem>
 
-#include "StringUtility.h"
+#include "StringUtility.hpp"
 
 using namespace std;
 using namespace Egliss;
