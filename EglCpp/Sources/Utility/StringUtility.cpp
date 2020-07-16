@@ -8,9 +8,9 @@
 using namespace std;
 using namespace Egliss;
 
-std::string StringUtility::Replace(char from, const std::string& to)
+std::string StringUtility::Replace(const std::string& text, char from, const std::string& to)
 {
-	std::string dest;
+	std::string dest = text;
 	std::stack<int> insertPoints;
 	// from str length is 1
 	const auto addLength = to.length() - 1;
@@ -49,9 +49,9 @@ std::string StringUtility::Replace(char from, const std::string& to)
 	return dest;
 }
 
-std::string StringUtility::Replace(const std::string& from, const std::string& to)
+std::string StringUtility::Replace(const std::string& text, const std::string& from, const std::string& to)
 {
-	std::string dest;
+	std::string dest = text;
 	auto pos = dest.find(from);
 
 	while (pos != std::string::npos)
