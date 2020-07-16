@@ -35,11 +35,11 @@ namespace Egliss::Rendering
 		void InitializeInternal();
 		static ComPtr<ID3D12Debug> CreateDebugLayer();
 		static ComPtr<IDXGIFactory4> CreateDXGIFactory();
-		static SwapChainRTVArrayT CreateSwapChainRTV(ComPtr<ID3D12Device6> device,ComPtr<IDXGISwapChain3> swapchain, ComPtr<ID3D12DescriptorHeap> heap);
+		static SwapChainRTVArrayT CreateSwapChainRTV(ComPtr<ID3D12Device6> device, ComPtr<IDXGISwapChain3> swapchain, ComPtr<ID3D12DescriptorHeap> heap);
 		static ComPtr<IDXGIAdapter1> CreateDXGIAdapter(ComPtr<IDXGIFactory4> factory);
 		static ComPtr<ID3D12Device6> CreateDevice(ComPtr<IDXGIAdapter1> adapter);
 		static ComPtr<ID3D12CommandQueue> CreateCommandQueue(ComPtr<ID3D12Device6> device, CommandListType type);
-		static ComPtr<ID3D12Fence> CreateCommandQueueFence(ComPtr<ID3D12Device6> device, CommandListType type);
+		static ComPtr<ID3D12Fence> CreateCommandQueueFence(ComPtr<ID3D12Device6> device);
 		static HANDLE CreateFenceEvent();
 		static ComPtr<ID3D12CommandList> CreateCommandList(ComPtr<ID3D12Device6> device, ComPtr<ID3D12CommandAllocator> allocator, CommandListType type);
 		static ComPtr<ID3D12GraphicsCommandList> CreateGraphicsCommandList(ComPtr<ID3D12Device6> device, ComPtr<ID3D12CommandAllocator> allocator, CommandListType type);
@@ -49,7 +49,7 @@ namespace Egliss::Rendering
 
 		void Rendering();
 
-		static unsigned int GetHeapByteSize(ComPtr<ID3D12Device6> device,DescriptorHeapType type);
+		static unsigned int GetHeapByteSize(ComPtr<ID3D12Device6> device, DescriptorHeapType type);
 
 	};
 }

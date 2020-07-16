@@ -10,7 +10,7 @@ namespace Egliss
 		StreamReader() = default;
 		StreamReader(const std::filesystem::path& path, IOMode type);
 		StreamReader(const StreamReader&) = delete;
-		StreamReader(StreamReader&& stream)
+		StreamReader(StreamReader&& stream) noexcept
 		{
 			*this = static_cast<StreamReader&&>(stream);
 		}

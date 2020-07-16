@@ -32,7 +32,7 @@ void DirectXManager::Draw()
 {
 	if (!DirectXManager::_instance)
 		return;
-	
+
 	DirectXManager::_instance->Rendering();
 }
 
@@ -54,7 +54,7 @@ void DirectXManager::InitializeInternal()
 	this->_commandAllocator = DirectXManager::CreateCommandAllocator(this->_device, CommandListType::Direct);
 	this->_graphicsCommandList = DirectXManager::CreateGraphicsCommandList(this->_device, this->_commandAllocator, CommandListType::Direct);
 	this->_fenceEvenet = DirectXManager::CreateFenceEvent();
-	this->_renderingQueueFence = DirectXManager::CreateCommandQueueFence(this->_device, CommandListType::Direct);
+	this->_renderingQueueFence = DirectXManager::CreateCommandQueueFence(this->_device);
 }
 ComPtr<ID3D12Debug> DirectXManager::CreateDebugLayer()
 {
@@ -120,7 +120,7 @@ ComPtr<ID3D12Device6> DirectXManager::CreateDevice(ComPtr<IDXGIAdapter1> adapter
 	ComPtr<ID3D12Device> device;
 
 	const auto result = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), (void**)device.ReleaseAndGetAddressOf());
-	
+
 	if (FAILED(result))
 		throw std::exception("directx 12 adapter found but, device initialize failed");
 	if (FAILED(device.As(&device6)))
@@ -146,7 +146,7 @@ ComPtr<ID3D12CommandQueue> DirectXManager::CreateCommandQueue(ComPtr<ID3D12Devic
 	return queue;
 }
 
-ComPtr<ID3D12Fence> DirectXManager::CreateCommandQueueFence(ComPtr<ID3D12Device6> device, CommandListType type)
+ComPtr<ID3D12Fence> DirectXManager::CreateCommandQueueFence(ComPtr<ID3D12Device6> device)
 {
 	ComPtr<ID3D12Fence> fence;
 
@@ -302,9 +302,9 @@ void DirectXManager::Rendering()
 	const auto now = std::chrono::system_clock::now().time_since_epoch();
 	const auto miliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
 	const auto seed = std::fmod((double)miliseconds, 100000.0) / 1000.0f;
-	const auto r = std::sinf(seed);
-	const auto g = std::cosf(seed);
-	const auto b = std::tanf(seed);
+	const auto r = std::sinf((float)seed);
+	const auto g = std::cosf((float)seed);
+	const auto b = std::tanf((float)seed);
 	const auto a = 0.1f;
 
 	float clearColor[4] = { r,g,b,a };
@@ -319,9 +319,6 @@ void DirectXManager::Rendering()
 	auto rtvHandle = this->_swapChainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	rtvHandle.ptr += DirectXManager::GetHeapByteSize(this->_device, DescriptorHeapType::RenderTarget) * rtvIndex;
 
-	auto random = Application::GetAppComponent<Random>();
-	auto v = random.Range(0.0f, 1.0f);
-	
 	SetResourceBarrier(this->_graphicsCommandList.Get(), this->_swapChainRTV[rtvIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	this->_graphicsCommandList->RSSetViewports(1, &viewport);
 	this->_graphicsCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
