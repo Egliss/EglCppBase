@@ -241,6 +241,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Sources\App\Application.cpp" />
+    <ClCompile Include="Sources\Math\Math.cpp" />
+    <ClCompile Include="Sources\Math\Matrix4x4.cpp" />
+    <ClCompile Include="Sources\Math\Quaternion.cpp" />
     <ClCompile Include="Sources\Reflection\DynamicType.cpp" />
     <ClCompile Include="Sources\App\Components\Random.cpp" />
     <ClCompile Include="Sources\Utility\StringUtility.cpp" />
@@ -258,6 +261,13 @@
     <ClInclude Include="Sources\App\Application.hpp" />
     <ClInclude Include="Sources\App\IApplicationComponent.hpp" />
     <ClInclude Include="Sources\App\Components\Random.hpp" />
+    <ClInclude Include="Sources\Math\Math.hpp" />
+    <ClInclude Include="Sources\Math\Matrix4x4.hpp" />
+    <ClInclude Include="Sources\Math\Quaternion.hpp" />
+    <ClInclude Include="Sources\Math\Vector2.hpp" />
+    <ClInclude Include="Sources\Math\Vector3.hpp" />
+    <ClInclude Include="Sources\Math\Vector4.hpp" />
+    <ClInclude Include="Sources\Math\XMath.hpp" />
     <ClInclude Include="Sources\Reflection\DynamicType.hpp" />
     <ClInclude Include="Sources\Reflection\StaticType.hpp" />
     <ClInclude Include="Sources\Utility\StringUtility.h" />
