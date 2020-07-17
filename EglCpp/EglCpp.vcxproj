@@ -241,6 +241,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Sources\App\Application.cpp" />
+    <ClCompile Include="Sources\App\Components\Resources\Resource.cpp" />
+    <ClCompile Include="Sources\App\Components\Resources\Resources.cpp" />
     <ClCompile Include="Sources\Math\Math.cpp" />
     <ClCompile Include="Sources\Math\Matrix4x4.cpp" />
     <ClCompile Include="Sources\Math\Quaternion.cpp" />
@@ -263,6 +265,8 @@
   <ItemGroup>
     <ClInclude Include="Sources\App\AppConfiguration.hpp" />
     <ClInclude Include="Sources\App\Application.hpp" />
+    <ClInclude Include="Sources\App\Components\Resources\Resource.hpp" />
+    <ClInclude Include="Sources\App\Components\Resources\Resources.hpp" />
     <ClInclude Include="Sources\App\IApplicationComponent.hpp" />
     <ClInclude Include="Sources\App\Components\Random.hpp" />
     <ClInclude Include="Sources\Math\Math.hpp" />

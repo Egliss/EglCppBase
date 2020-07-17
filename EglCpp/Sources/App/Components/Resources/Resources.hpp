@@ -4,23 +4,14 @@
 #include <unordered_map>
 #include <string>
 
-#include "../IApplicationComponent.hpp"
+#include "../../IApplicationComponent.hpp"
+#include "Resource.hpp"
 
 namespace Egliss
 {
-	class Resource
-	{
-	public:
-		const std::string& Key()const { return this->_key; }
-		const std::string& Path()const { return this->_path; }
-
-	protected:
-		std::string _key;
-		std::string _path;
-	};
-
 	class Resources : public IApplicationComponent
 	{
+		friend class Resource;
 	public:
 		std::shared_ptr<Resource> FindResource(const std::string& key) const
 		{
@@ -35,11 +26,15 @@ namespace Egliss
 			return itr->second;
 		}
 
-		// physical directory referenced resource
-		std::unordered_map <std::string, std::shared_ptr<Resource>> _physicalResources;
 
 		virtual void Initialize() override;
 		virtual void Finalize() override;
 		virtual std::string Name() const override { return "Resources"; }
+
+	private:
+		// physical directory referenced resource
+		std::unordered_map <std::string, std::shared_ptr<Resource>> _physicalResources;
+
+		void Register(const std::string& key, const std::string& path);
 	};
 }

@@ -2,12 +2,14 @@
 
 #include <string>
 
+#include "../../App/Components/Resources/Resource.hpp"
+
 #include "DirectXShared.hpp"
 #include "../../Math/Vector2.hpp"
 
 namespace Egliss::Rendering
 {
-	class Texture2D
+	class Texture2D : public Resource
 	{
 	public:
 
@@ -26,5 +28,10 @@ namespace Egliss::Rendering
 
 		Vector2 _resolution;
 		ComPtr<ID3D12Resource> _texture;
+
+	protected:
+
+		// Resource ‚ğ‰î‚µ‚ÄŒp³‚³‚ê‚Ü‚µ‚½
+		virtual bool InternalInitialize(const std::string& path) override;
 	};
 }
