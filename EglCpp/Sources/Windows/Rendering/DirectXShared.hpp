@@ -1,19 +1,13 @@
 #pragma once
 
+#include <d3d12.h>
 #include <wrl/client.h>
 
-struct IDXGIFactory4;
-struct IDXGIAdapter1;
-struct IDXGISwapChain3;
-struct ID3D12Device6;
-struct ID3D12Debug;
-struct ID3D12CommandQueue;
-struct ID3D12CommandList;
-struct ID3D12DescriptorHeap;
-struct ID3D12Resource;
-struct ID3D12CommandAllocator;
-struct ID3D12GraphicsCommandList;
-struct ID3D12Fence;
+/*
+#include <dxgi1_4.h>
+#include <D3Dcompiler.h>
+#include <DirectXMath.h>
+*/
 
 namespace Egliss::Rendering
 {

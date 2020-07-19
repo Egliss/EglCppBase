@@ -5,14 +5,17 @@
 
 using namespace Egliss;
 
-void Resource::Initialize(const std::string& key, const std::string& path)
+void Resource::Initialize(std::shared_ptr<Resource> resource)
 {
-	this->_key = key;
-
-	const auto avalable = this->InternalInitialize(path);
+	if (!resource)
+	{
+		throw std::exception("invalid resource detected --> resource reference(_ownRef) not initialized.");
+	}
+	this->_ownRef = resource;
+	const auto avalable = this->InternalInitialize();
 	if (avalable)
 	{
-		Application::GetAppComponent<Resources>().Register(key, path);
+		Application::GetAppComponent<Resources>().Register(this->_key, resource);
 	}
 	else
 	{

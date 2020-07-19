@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Windows.h>
 #include "../App/IApplicationImpl.hpp"
-#include "MinDef.hpp"
 
 namespace Egliss
 {

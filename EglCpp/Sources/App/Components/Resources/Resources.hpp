@@ -15,7 +15,11 @@ namespace Egliss
 	public:
 		std::shared_ptr<Resource> FindResource(const std::string& key) const
 		{
-			throw std::exception("not implemented.");
+			const auto itr = _keyResource.find(key);
+			if (itr == this->_keyResource.end())
+				return nullptr;
+
+			return itr->second;
 		}
 		std::shared_ptr<Resource> FindPhysicalResource(const std::string& physicalPath)const
 		{
@@ -34,7 +38,8 @@ namespace Egliss
 	private:
 		// physical directory referenced resource
 		std::unordered_map <std::string, std::shared_ptr<Resource>> _physicalResources;
+		std::unordered_map <std::string, std::shared_ptr<Resource>> _keyResource;
 
-		void Register(const std::string& key, const std::string& path);
+		void Register(const std::string& key, std::shared_ptr<Resource> resource);
 	};
 }

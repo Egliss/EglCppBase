@@ -3,6 +3,7 @@
 #include "DynamicType.hpp"
 
 #include "../App/IApplicationComponent.hpp"
+#include "../App/Components/Resources/Resources.hpp"
 #include "../App/Components/Random.hpp"
 
 using namespace Egliss::Reflection;
@@ -16,6 +17,8 @@ void DynamicTypeManager::Initialize()
 {
 	_indexedTypes.emplace_back("Egliss::IApplicationComponent", true,std::vector<int>({0}),[](){return nullptr; });
 	_typesindices.emplace("Egliss::IApplicationComponent"s, 0);
-	_indexedTypes.emplace_back("Egliss::Random", false,std::vector<int>({1 ,0}),[](){return new Egliss::Random(); });
-	_typesindices.emplace("Egliss::Random"s, 1);
+	_indexedTypes.emplace_back("Egliss::Resources", false,std::vector<int>({1 ,0}),[](){return new Egliss::Resources(); });
+	_typesindices.emplace("Egliss::Resources"s, 1);
+	_indexedTypes.emplace_back("Egliss::Random", false,std::vector<int>({2 ,0}),[](){return new Egliss::Random(); });
+	_typesindices.emplace("Egliss::Random"s, 2);
 }

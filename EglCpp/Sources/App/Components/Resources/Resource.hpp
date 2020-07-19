@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
 namespace Egliss
@@ -14,10 +15,21 @@ namespace Egliss
 			return this->_key;
 		}
 
-		void Initialize(const std::string& key, const std::string& path);
+		void Initialize(std::shared_ptr<Resource> resource);
+
+		template<class T>
+		std::shared_ptr<T> AsRef() const
+		{
+			if (this->_ownRef.expired())
+				return nullptr;
+
+			return this->_ownRef.lock();
+		}
 	protected:
+		std::weak_ptr<Resource> _ownRef;
 		std::string _key;
 
-		virtual bool InternalInitialize(const std::string& path) = 0;
+		Resource() = default;
+		virtual bool InternalInitialize() = 0;
 	};
 }

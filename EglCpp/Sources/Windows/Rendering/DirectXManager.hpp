@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DirectXShared.hpp"
+#include <dxgi1_4.h>
 #include <memory>
 #include <array>
 
@@ -12,6 +13,15 @@ namespace Egliss::Rendering
 		static void Initialize();
 		static void Finalize();
 		static void Draw();
+
+		static DirectXManager& GetInstance()
+		{
+			return *_instance.get();
+		}
+		ID3D12Device6* Device()
+		{
+			return this->_device.Get();
+		}
 	private:
 		static constexpr unsigned int SwapChainBufferCount = 2;
 		using SwapChainRTVArrayT = std::array<ComPtr<ID3D12Resource>, SwapChainBufferCount>;
