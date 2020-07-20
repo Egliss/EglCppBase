@@ -21,13 +21,12 @@ std::shared_ptr<Texture2D> Texture2D::Create(const std::string& key, const std::
 
 bool Texture2D::InternalInitialize()
 {
-	D3D12_SUBRESOURCE_DATA data;
 	auto result = DirectX::LoadWICTextureFromFile(
 		DirectXManager::GetInstance().Device(),
 		StringUtility::ToWString(this->_path.data()).data(),
 		this->_texture.ReleaseAndGetAddressOf(),
 		this->_data,
-		data
+		this->_subresourceData
 	);
 	if (FAILED(result)) 
 	{

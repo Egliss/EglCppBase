@@ -9,7 +9,7 @@ void Resource::Initialize(std::shared_ptr<Resource> resource)
 {
 	if (!resource)
 	{
-		throw std::exception("invalid resource detected --> resource reference(_ownRef) not initialized.");
+		throw std::exception("invalid resource detected --> Initialize require constructed resource shared pointer.");
 	}
 	this->_ownRef = resource;
 	const auto avalable = this->InternalInitialize();

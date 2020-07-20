@@ -90,12 +90,6 @@ LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam,
 	std::cout << message << std::endl;
 	switch (message)
 	{
-	case WM_MOUSEWHEEL:
-	case WM_MOUSEMOVE:
-	{
-		Egliss::Rendering::DirectXManager::Draw();
-		break;
-	}
 	case WM_SIZE:
 	{
 		break;
@@ -107,10 +101,12 @@ LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam,
 	break;
 	case WM_PAINT:
 	{
+		/*
 		PAINTSTRUCT ps;
 		BeginPaint(hWnd, &ps);
 		// TODO: HDC を使用する描画コードをここに追加してください...
 		EndPaint(hWnd, &ps);
+		*/
 	}
 	break;
 	case WM_DESTROY:

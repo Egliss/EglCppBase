@@ -30,6 +30,7 @@ namespace Egliss::Rendering
 		std::string _path;
 		Vector2 _resolution;
 		std::unique_ptr<unsigned char[]> _data;
+		D3D12_SUBRESOURCE_DATA _subresourceDesc;
 		ComPtr<ID3D12Resource> _texture;
 
 		Texture2D();
