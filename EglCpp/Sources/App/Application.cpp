@@ -26,9 +26,10 @@ bool Application::Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicat
 			continue;
 		if (!type.HasTypeRelation(interfaceId))
 			continue;
-		auto ptr = std::unique_ptr<IAppComponent>(reinterpret_cast<IAppComponent*>(type.constructor()));
+		auto uniquePtr = std::unique_ptr<IAppComponent>(reinterpret_cast<IAppComponent*>(type.constructor()));
+		auto ptr = uniquePtr.get();
+		Application::_components.emplace(type.Id(), std::move(uniquePtr));
 		ptr->Initialize();
-		Application::_components.emplace(type.Id(), std::move(ptr));
 	}
 	return true;
 }
