@@ -15,7 +15,7 @@ using namespace Egliss;
 
 #pragma region Local
 
-ATOM MyRegisterClass(HINSTANCE hInstance)
+ATOM RegisterWindowClass(HINSTANCE hInstance)
 {
 	WNDCLASSEXA wcex;
 
@@ -70,7 +70,7 @@ bool WindowsApplicationImpl::Initialize(IApplicationInitializeArg&& arg)
 
 	this->_hinstance = winArg.hInstance;
 
-	MyRegisterClass(winArg.hInstance);
+	RegisterWindowClass(winArg.hInstance);
 	auto initialized = InitInstance(winArg.hInstance, winArg.nCmdShow, this->_hwnd);
 	if (!initialized)
 		return initialized;
