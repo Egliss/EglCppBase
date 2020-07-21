@@ -26,7 +26,7 @@ bool Texture2D::InternalInitialize()
 		StringUtility::ToWString(this->_path.data()).data(),
 		this->_texture.ReleaseAndGetAddressOf(),
 		this->_data,
-		this->_subresourceData
+		this->_subresourceDesc
 	);
 	if (FAILED(result)) 
 	{
