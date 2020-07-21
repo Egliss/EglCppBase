@@ -249,6 +249,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Sources\App\Application.cpp" />
+    <ClCompile Include="Sources\App\Components\FpsController.cpp" />
     <ClCompile Include="Sources\App\Components\Resources\Resource.cpp" />
     <ClCompile Include="Sources\App\Components\Resources\Resources.cpp" />
     <ClCompile Include="Sources\Math\Math.cpp" />
@@ -274,6 +275,7 @@
   <ItemGroup>
     <ClInclude Include="Sources\App\AppConfiguration.hpp" />
     <ClInclude Include="Sources\App\Application.hpp" />
+    <ClInclude Include="Sources\App\Components\FpsController.hpp" />
     <ClInclude Include="Sources\App\Components\Resources\Resource.hpp" />
     <ClInclude Include="Sources\App\Components\Resources\Resources.hpp" />
     <ClInclude Include="Sources\App\IApplicationComponent.hpp" />
@@ -299,6 +301,7 @@
     <ClInclude Include="Sources\Windows\Dialog\OpenFileDialog.hpp" />
     <ClInclude Include="Sources\Windows\Dialog\OpenFolderDialog.hpp" />
     <ClInclude Include="Sources\Windows\Dialog\SaveFileDialog.hpp" />
+    <ClInclude Include="Sources\Windows\DirectXUtility.hpp" />
     <ClInclude Include="Sources\Windows\Rendering\DirectXManager.hpp" />
     <ClInclude Include="Sources\Windows\Rendering\DirectXShared.hpp" />
     <ClInclude Include="Sources\Win.hpp" />
