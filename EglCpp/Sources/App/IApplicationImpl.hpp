@@ -17,5 +17,7 @@ namespace Egliss
 		virtual void Finalize() = 0;
 
 		virtual std::string GetName() const = 0;
+	protected:
+		IApplicationImpl() = default;
 	};
 }
