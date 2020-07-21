@@ -10,6 +10,8 @@ namespace Egliss
 	public:
 
 		virtual ~IApplicationImpl() {};
+		IApplicationImpl(const IApplicationImpl&) = delete;
+		IApplicationImpl& operator=(const IApplicationImpl&) = delete;
 
 		virtual bool Initialize(IApplicationInitializeArg&& arg) = 0;
 		virtual void Finalize() = 0;
