@@ -44,11 +44,6 @@ namespace Egliss
 			}
 		}
 		template<class U = T>
-		std::enable_if_t< IsVoid<U>, void> operator()()
-		{
-			Call();
-		}
-		template<class U = T>
 		std::enable_if_t<!IsVoid<U>, std::vector<T>> Call()
 		{
 			std::vector<T> ret;
@@ -61,11 +56,6 @@ namespace Egliss
 			}
 
 			return ret;
-		}
-		template<class U = T>
-		EnableIfT<!IsVoid<U>, std::vector<T>> operator()()
-		{
-			return Call();
 		}
 
 	private:
@@ -103,11 +93,6 @@ namespace Egliss
 			}
 		}
 		template<class U = T>
-		std::enable_if_t< IsVoid<U>, void> operator()(const Args& ...args)
-		{
-			Call(std::forward<Args>(args)...);
-		}
-		template<class U = T>
 		std::enable_if_t<!IsVoid<U>, std::vector<T>> Call(const Args& ...args)
 		{
 			std::vector<T> ret;
@@ -120,11 +105,6 @@ namespace Egliss
 			}
 
 			return ret;
-		}
-		template<class U = T>
-		std::enable_if_t<!IsVoid<U>, std::vector<T>> operator()(const Args& ...args)
-		{
-			return Call(std::forward<Args>(args)...);
 		}
 	private:
 		std::vector<FunctionT> _functions;
