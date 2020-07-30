@@ -35,7 +35,8 @@ namespace Egliss
 		#ifdef _DEBUG
 			constexpr auto name = Reflection::StaticType<T>::Name;
 		#endif // _DEBUG
-			return static_cast<T&>(*_components[id].get());
+			auto& ref = *(_components[id].get());
+			return static_cast<T&>(ref);
 		}
 
 	private:

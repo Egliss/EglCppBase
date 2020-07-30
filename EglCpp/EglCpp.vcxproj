@@ -249,7 +249,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Sources\App\Application.cpp" />
-    <ClCompile Include="Sources\App\Components\FpsController.cpp" />
     <ClCompile Include="Sources\App\Components\Resources\Resource.cpp" />
     <ClCompile Include="Sources\App\Components\Resources\Resources.cpp" />
     <ClCompile Include="Sources\Math\Math.cpp" />

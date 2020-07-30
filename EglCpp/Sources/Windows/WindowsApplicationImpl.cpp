@@ -1,9 +1,9 @@
 #include "pch.h"
 
+#include "../App/Components/FpsController.hpp"
 #include "../App/Application.hpp"
 #include "../App/AppConfiguration.hpp"
 #include "WindowsShared.hpp"
-#include "WindowStyle.hpp"
 #include "WindowsApplicationImpl.hpp"
 #include "WindowsInitializeArg.hpp"
 
@@ -38,15 +38,14 @@ ATOM RegisterWindowClass(HINSTANCE hInstance)
 	return result;
 }
 
-bool InitInstance(HINSTANCE handleInstance, int nCmdShow, HWND& outHWND)
+bool InitInstance(HINSTANCE handleInstance, int nCmdShow, WindowStyle windowStyle, HWND& outHWND)
 {
 	handleInstance = handleInstance;
-
 	HWND hWnd = CreateWindowExA(
 		0,
 		AppConfiguration::ApplicationClassName.data(),
 		AppConfiguration::ApplicationName.data(),
-		static_cast<DWORD>(WindowStyle::Windowed),
+		static_cast<DWORD>(windowStyle),
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, handleInstance, nullptr);
 
 	if (!hWnd)
@@ -57,24 +56,33 @@ bool InitInstance(HINSTANCE handleInstance, int nCmdShow, HWND& outHWND)
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
-	auto style = GetWindowLongA(hWnd, GWL_EXSTYLE);
-	SetWindowLongA(hWnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
-	SetLayeredWindowAttributes(hWnd,RGB(0, 0, 0),0, LWA_COLORKEY);
-
 	return true;
 }
 #pragma endregion
+
+void WindowsApplicationImpl::Resize(Vector2 size)
+{
+	RECT rect;
+	GetWindowRect(this->_hwnd, &rect);
+	SetWindowPos(this->_hwnd, 0, rect.left, rect.top, static_cast<int>(size.x), static_cast<int>(size.y), static_cast<DWORD>(this->_style));
+	// Window Proc will fire event
+}
 
 bool WindowsApplicationImpl::Initialize(IApplicationInitializeArg&& arg)
 {
 	auto&& winArg = static_cast<WindowsInitializeArg&&>(arg);
 
 	this->_hinstance = winArg.hInstance;
+	this->_style = WindowStyle::Windowed;
 
 	RegisterWindowClass(winArg.hInstance);
-	auto initialized = InitInstance(winArg.hInstance, winArg.nCmdShow, this->_hwnd);
+	auto initialized = InitInstance(winArg.hInstance, winArg.nCmdShow,this->_style, this->_hwnd);
 	if (!initialized)
 		return initialized;
+
+	RECT rect;
+	GetClientRect(this->_hwnd,&rect);
+	this->_size = Vector2(static_cast<float>(rect.right - rect.left), static_cast<float>(rect.bottom - rect.top));
 
 	Rendering::DirectXManager::Initialize();
 
@@ -86,9 +94,18 @@ void WindowsApplicationImpl::Finalize()
 
 }
 
+void WindowsApplicationImpl::Update()
+{
+	Application::GetAppComponent<FpsController>().Tick([]()
+	{
+
+		Rendering::DirectXManager::GetInstance().Render();
+	});
+	// UpdateWindow(this->_hwnd);
+}
+
 LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	std::cout << message << std::endl;
 	switch (message)
 	{
 		case WM_SIZE:
@@ -102,27 +119,23 @@ LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam,
 					impl.TrySuspend();
 				}
 			}
-			else if (impl._isMinimized)
+			else if (wParam == SIZE_MAXSHOW)
 			{
-				impl._isMinimized = false;
-				impl.TryResume();
+				//	auto style = GetWindowLongA(hWnd, GWL_EXSTYLE);
+	            // SetWindowLongA(hWnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
+	            // SetLayeredWindowAttributes(hWnd,RGB(0, 0, 0),0, LWA_COLORKEY);
+				if (impl._isMinimized)
+				{
+					impl._isMinimized = false;
+					impl.TryResume();
+				}
 			}
 			else if (impl._isSizeMoving)
 			{
-				const auto width = static_cast<float>(LOWORD(lParam));
-				const auto height = static_cast<float>(HIWORD(lParam));
-				impl._onResized.Call(width, height);
+				impl._size.x = static_cast<float>(LOWORD(lParam));
+				impl._size.y = static_cast<float>(HIWORD(lParam));
+				impl._onResized.Call(impl._size);
 			}
-			break;
-		}
-		case WM_PAINT:
-		{
-			/*
-			PAINTSTRUCT ps;
-			BeginPaint(hWnd, &ps);
-			// TODO: HDC を使用する描画コードをここに追加してください...
-			EndPaint(hWnd, &ps);
-			*/
 			break;
 		}
 		case WM_ENTERSIZEMOVE:
@@ -132,12 +145,13 @@ LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam,
 		}
 		case WM_EXITSIZEMOVE:
 		{
-			Application::GetImplAs<WindowsApplicationImpl>()._isSizeMoving = false;
+			auto& impl = Application::GetImplAs<WindowsApplicationImpl>();
+			impl._isSizeMoving = false;
 			RECT rect;
 			GetClientRect(hWnd, &rect);
-			const auto width = static_cast<float>(rect.right - rect.left);
-			const auto height = static_cast<float>(rect.bottom - rect.top);
-			Application::GetImplAs<WindowsApplicationImpl>()._onResized.Call(width, height);
+			impl._size.x = static_cast<float>(rect.right - rect.left);
+			impl._size.y = static_cast<float>(rect.bottom - rect.top);
+			impl._onResized.Call(impl._size);
 			break;
 		}
 		case WM_ACTIVATE:
@@ -157,14 +171,12 @@ LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam,
 				if (!impl._isSuspended)
 				{
 					impl.TrySuspend();
-					return TRUE;
 				}
 				break;
 			case PBT_APMRESUMESUSPEND:
 				if (!impl._isMinimized)
 				{
 					impl.TryResume();
-					return TRUE;
 				}
 			}
 			break;
@@ -193,7 +205,9 @@ void WindowsApplicationImpl::TrySuspend()
 	auto& impl = Application::GetImplAs<WindowsApplicationImpl>();
 
 	if (!impl._isSuspended)
+	{
 		impl._onSuspend.Call();
+	}
 	impl._isSuspended = true;
 }
 
@@ -201,8 +215,15 @@ void WindowsApplicationImpl::TryResume()
 {
 	auto& impl = Application::GetImplAs<WindowsApplicationImpl>();
 	if (impl._isSuspended)
+	{
 		impl._onResumed.Call();
+	}
 	impl._isSuspended = false;
+}
+
+Vector2 WindowsApplicationImpl::WindowSize() const
+{
+	return this->_size;
 }
 
 WindowsApplicationImpl::WindowsApplicationImpl() :IApplicationImpl(), _hinstance(0), _hwnd(0),_isMinimized(false),_isSuspended(false),_isSizeMoving(false)
@@ -210,7 +231,7 @@ WindowsApplicationImpl::WindowsApplicationImpl() :IApplicationImpl(), _hinstance
 	if (OleInitialize(nullptr) >= 0)
 	{
 		CoUninitialize();
-		DirectXUtility::ThrowIfFailed(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
+		ThrowIfFailed(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 	}
 }
 

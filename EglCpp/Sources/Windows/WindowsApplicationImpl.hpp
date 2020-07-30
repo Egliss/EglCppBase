@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include "WindowStyle.hpp"
 #include "../Utility/Event.hpp"
 #include "../App/IApplicationImpl.hpp"
 
@@ -17,12 +18,15 @@ namespace Egliss
 
 		virtual bool Initialize(IApplicationInitializeArg&& arg) override;
 		virtual void Finalize() override;
+		virtual void Update() override;
 		virtual std::string GetName() const override { return "Windows"; }
 		virtual IEvent<void()> OnSuspend() { return this->_onSuspend; }
 		virtual IEvent<void()> OnResumed() { return this->_onResumed; }
 		virtual IEvent<void()> OnActivated() { return this->_onActivated; }
 		virtual IEvent<void()> OnDeactivated() { return this->_onDeactivated; }
-		virtual IEvent<void(float, float)> OnResized() { return this->_onResized; }
+		virtual IEvent<void(Vector2)> OnResized() { return this->_onResized; }
+		virtual void Resize(Vector2 size) override;
+		virtual Vector2 WindowSize() const override;
 
 		HWND GetHWND() const { return this->_hwnd; }
 		HINSTANCE GetHINSTANCE() const { return this->_hinstance; }
@@ -34,15 +38,18 @@ namespace Egliss
 		bool _isMinimized;
 		bool _isSuspended;
 		bool _isSizeMoving;
+		WindowStyle _style;
+		Vector2 _size;
 
 		Event<void()> _onSuspend;
 		Event<void()> _onResumed;
 		Event<void()> _onActivated;
 		Event<void()> _onDeactivated;
-		Event<void(float, float)> _onResized;
+		Event<void(Vector2)> _onResized;
 
 		void TrySuspend();
 		void TryResume();
+
 	};
 	using WinImpl = WindowsApplicationImpl;
 }

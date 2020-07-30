@@ -19,16 +19,26 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	if (!initialized)
 		return false;
 
-	MSG msg;
-	while (GetMessageA(&msg, nullptr, 0, 0))
+	MSG message;
+	auto& app = Egliss::Application::GetImplAs<Egliss::WindowsApplicationImpl>();
+
+	while (true)
 	{
-		if (!TranslateAcceleratorA(msg.hwnd, 0, &msg))
+		auto ee = PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE);
+		if(ee > 0)
 		{
-			TranslateMessage(&msg);
-			DispatchMessageA(&msg);
+			if (message.message == WM_QUIT)
+				break;
+			TranslateMessage(&message);
+			DispatchMessageA(&message);
+		}
+		else 
+		{
+			app.Update();
+
 		}
 	}
 
-	return (int)msg.wParam;
+	return static_cast<int>(message.wParam);
 }
 #endif
