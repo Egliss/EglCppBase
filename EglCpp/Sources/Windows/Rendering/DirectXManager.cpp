@@ -1,8 +1,14 @@
 #include "pch.h"
 #include "DirectXManager.hpp"
 #include <Win.hpp>
-#include <d3d12.h>
 
+#include <d3d12.h>
+#include <dxgidebug.h>
+#include <DirectXColors.h>
+
+#include <fmt/format.h>
+
+#include "../DirectXUtility.hpp"
 #include "../../App/Components/Random.hpp"
 
 #pragma comment(lib, "d3d12.lib")
@@ -14,6 +20,8 @@ using namespace Egliss::Rendering;
 
 std::unique_ptr<DirectXManager> DirectXManager::_instance;
 
+const D3D_FEATURE_LEVEL FeatureLevel = D3D_FEATURE_LEVEL_11_0;
+
 void DirectXManager::Initialize()
 {
 	auto instance = std::make_unique<DirectXManager>();
@@ -21,313 +29,426 @@ void DirectXManager::Initialize()
 	DirectXManager::_instance = std::move(instance);
 }
 
-void DirectXManager::Finalize()
-{
-}
-
-void DirectXManager::Draw()
-{
-	if (!DirectXManager::_instance)
-		return;
-
-	DirectXManager::_instance->Rendering();
-}
-
 void DirectXManager::InitializeInternal()
 {
-	const auto hwnd = Application::GetImplAs<WinImpl>().GetHWND();
-
-	this->_debug = DirectXManager::CreateDebugLayer();
-
-	this->_dxgiFactory = DirectXManager::CreateDXGIFactory();
-	this->_dxgiAdapter = DirectXManager::CreateDXGIAdapter(this->_dxgiFactory);
-	this->_device = DirectXManager::CreateDevice(this->_dxgiAdapter);
-	this->_renderingQueue = DirectXManager::CreateCommandQueue(this->_device, CommandListType::Direct);
-	this->_computeQueue = DirectXManager::CreateCommandQueue(this->_device, CommandListType::Compute);
-	this->_copyQueue = DirectXManager::CreateCommandQueue(this->_device, CommandListType::Copy);
-	this->_swapChain = DirectXManager::CreateSwapChain(this->_renderingQueue, this->_dxgiFactory, hwnd);
-	this->_swapChainDescriptorHeap = DirectXManager::CreateDescriptorHeap(this->_device, DescriptorHeapType::RenderTarget, SwapChainBufferCount, false);
-	this->_swapChainRTV = DirectXManager::CreateSwapChainRTV(this->_device, this->_swapChain, this->_swapChainDescriptorHeap);
-	this->_commandAllocator = DirectXManager::CreateCommandAllocator(this->_device, CommandListType::Direct);
-	this->_graphicsCommandList = DirectXManager::CreateGraphicsCommandList(this->_device, this->_commandAllocator, CommandListType::Direct);
-	this->_fenceEvenet = DirectXManager::CreateFenceEvent();
-	this->_renderingQueueFence = DirectXManager::CreateCommandQueueFence(this->_device);
-}
-ComPtr<ID3D12Debug> DirectXManager::CreateDebugLayer()
-{
-	ComPtr<ID3D12Debug> debug;
-#ifdef _DEBUG
-	// TODO query in release build ?
-	const auto result = D3D12GetDebugInterface(__uuidof(ID3D12Debug), (void**)debug.ReleaseAndGetAddressOf());
-	if (FAILED(result))
-		throw std::exception("debug layer initialize failed.");
-
-	debug->EnableDebugLayer();
-#endif // _DEBUG
-	return debug;
-
-}
-ComPtr<IDXGIFactory4> DirectXManager::CreateDXGIFactory()
-{
-	ComPtr<IDXGIFactory4> factory;
-	const auto result = CreateDXGIFactory2(0, __uuidof(IDXGIFactory4), (void**)factory.ReleaseAndGetAddressOf());
-	if (FAILED(result))
-		throw std::exception("create dxgi factory was failed.");
-
-	return factory;
+    CreateDevice();
+    CreateResources();
 }
 
-DirectXManager::SwapChainRTVArrayT DirectXManager::CreateSwapChainRTV(ComPtr<ID3D12Device6> device, ComPtr<IDXGISwapChain3> swapchain, ComPtr<ID3D12DescriptorHeap> heap)
+void DirectXManager::Finalize()
 {
-	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-	const auto HeapStrid = DirectXManager::GetHeapByteSize(device, DescriptorHeapType::RenderTarget);
-	SwapChainRTVArrayT array;
-	for (auto L10 = 0U; L10 < DirectXManager::SwapChainBufferCount; L10++)
-	{
-		auto result = swapchain->GetBuffer(L10, __uuidof(ID3D12Resource), (void**)array[L10].GetAddressOf());
-		if (FAILED(result))
-			throw std::exception("query swapchain buffer was failed.");
-		device->CreateRenderTargetView(array[L10].Get(), nullptr, handle);
-		// step next loop addresss
-		handle.ptr += HeapStrid;
-	}
-	return std::move(array);
-}
-ComPtr<IDXGIAdapter1> DirectXManager::CreateDXGIAdapter(ComPtr<IDXGIFactory4> factory)
-{
-	ComPtr<IDXGIAdapter1> adapter;
-	for (auto index = 0U; DXGI_ERROR_NOT_FOUND != factory->EnumAdapters1(index, adapter.ReleaseAndGetAddressOf()); ++index)
-	{
-		DXGI_ADAPTER_DESC1 desc;
-		adapter->GetDesc1(&desc);
-
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-			continue;
-
-		// try constructable device
-		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device6), nullptr)))
-			return adapter;
-	}
-	throw std::exception("directX12 device adapter not found.");
+    _instance->WaitForGpu();
 }
 
-ComPtr<ID3D12Device6> DirectXManager::CreateDevice(ComPtr<IDXGIAdapter1> adapter)
+// Draws the scene.
+void DirectXManager::Render()
 {
-	ComPtr<ID3D12Device6> device6;
-	ComPtr<ID3D12Device> device;
+    ClearScreen();
 
-	const auto result = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), (void**)device.ReleaseAndGetAddressOf());
+    // TODO: Add your rendering code here.
 
-	if (FAILED(result))
-		throw std::exception("directx 12 adapter found but, device initialize failed");
-	if (FAILED(device.As(&device6)))
-		throw std::exception("directx 12 adapter found but, device initialize failed");
-
-	return device6;
+    // Show the new frame.
+    Present();
 }
 
-ComPtr<ID3D12CommandQueue> DirectXManager::CreateCommandQueue(ComPtr<ID3D12Device6> device, CommandListType type)
+// Helper method to prepare the command list for rendering and clear the back buffers.
+void DirectXManager::ClearScreen()
 {
-	ComPtr<ID3D12CommandQueue> queue;
-	D3D12_COMMAND_QUEUE_DESC desc;
-	desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	desc.NodeMask = 0;
-	desc.Type = static_cast<D3D12_COMMAND_LIST_TYPE>(type);
-	desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY::D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
+    // Reset command list and allocator.
+    ThrowIfFailed(m_commandAllocators[_backBufferIndex]->Reset());
+    ThrowIfFailed(m_commandList->Reset(m_commandAllocators[_backBufferIndex].Get(), nullptr));
 
-	const auto result = device->CreateCommandQueue(&desc, __uuidof(ID3D12CommandQueue), (void**)queue.ReleaseAndGetAddressOf());
+    // Transition the render target into the correct state to allow for drawing into it.
+    D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(_renderTargets[_backBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    m_commandList->ResourceBarrier(1, &barrier);
 
-	if (FAILED(result))
-		throw std::exception("create command queue was failed.");
+    // Clear the views.
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvDescriptor(
+        _rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+        static_cast<INT>(_backBufferIndex), _rtvDescriptorSize);
+    CD3DX12_CPU_DESCRIPTOR_HANDLE dsvDescriptor(m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+    m_commandList->OMSetRenderTargets(1, &rtvDescriptor, FALSE, &dsvDescriptor);
+    m_commandList->ClearRenderTargetView(rtvDescriptor, DirectX::Colors::CornflowerBlue, 0, nullptr);
+    m_commandList->ClearDepthStencilView(dsvDescriptor, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-	return queue;
+    const auto size = Application::GetImplAs<WindowsApplicationImpl>().WindowSize();
+    // Set the viewport and scissor rect.
+    D3D12_VIEWPORT viewport = { 0.0f, 0.0f, size.x,size.y, D3D12_MIN_DEPTH, D3D12_MAX_DEPTH };
+    D3D12_RECT scissorRect = { 0, 0, static_cast<LONG>(size.x), static_cast<LONG>(size.y) };
+    m_commandList->RSSetViewports(1, &viewport);
+    m_commandList->RSSetScissorRects(1, &scissorRect);
 }
 
-ComPtr<ID3D12Fence> DirectXManager::CreateCommandQueueFence(ComPtr<ID3D12Device6> device)
+// Submits the command list to the GPU and presents the back buffer contents to the screen.
+void DirectXManager::Present()
 {
-	ComPtr<ID3D12Fence> fence;
+    // Transition the render target to the state that allows it to be presented to the display.
+    D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(_renderTargets[_backBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    m_commandList->ResourceBarrier(1, &barrier);
 
-	const auto result = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)fence.ReleaseAndGetAddressOf());
+    // Send the command list off to the GPU for processing.
+    ThrowIfFailed(m_commandList->Close());
+    _commandQueue->ExecuteCommandLists(1, CommandListCast(m_commandList.GetAddressOf()));
 
-	if (FAILED(result))
-		throw std::exception("create fence was failed.");
+    // The first argument instructs DXGI to block until VSync, putting the application
+    // to sleep until the next VSync. This ensures we don't waste any cycles rendering
+    // frames that will never be displayed to the screen.
+    HRESULT hr = _swapChain->Present(1, 0);
 
-	return fence;
+    // If the device was reset we must completely reinitialize the renderer.
+    if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+    {
+        OnDeviceLosted();
+    }
+    else
+    {
+        ThrowIfFailed(hr);
+
+        MoveToNextFrame();
+    }
 }
 
-HANDLE DirectXManager::CreateFenceEvent()
+// Message handlers
+void DirectXManager::OnActivated()
 {
-	return CreateEventA(nullptr, false, false, nullptr);
-
+    // TODO: Game is becoming active window.
 }
 
-ComPtr<ID3D12CommandList> DirectXManager::CreateCommandList(ComPtr<ID3D12Device6> device, ComPtr<ID3D12CommandAllocator> allocator, CommandListType type)
+void DirectXManager::OnDeactivated()
 {
-	ComPtr<ID3D12CommandList> commandList;
-	const auto result =
-		device->CreateCommandList(0,
-								  static_cast<D3D12_COMMAND_LIST_TYPE>(type),
-								  allocator.Get(),
-								  nullptr,
-								  __uuidof(ID3D12CommandList),
-								  (void**)commandList.ReleaseAndGetAddressOf());
-	if (FAILED(result))
-		throw std::exception("create command list was failed.");
-
-	return commandList;
+    // TODO: Game is becoming background window.
 }
 
-ComPtr<ID3D12GraphicsCommandList> DirectXManager::CreateGraphicsCommandList(ComPtr<ID3D12Device6> device, ComPtr<ID3D12CommandAllocator> allocator, CommandListType type)
+void DirectXManager::OnSuspending()
 {
-	ComPtr<ID3D12GraphicsCommandList> graphicsCommandList;
-
-	const auto result =
-		device->CreateCommandList(0,
-								  static_cast<D3D12_COMMAND_LIST_TYPE>(type),
-								  allocator.Get(),
-								  nullptr,
-								  __uuidof(ID3D12GraphicsCommandList),
-								  (void**)graphicsCommandList.ReleaseAndGetAddressOf());
-	if (FAILED(result))
-		throw std::exception("create graphics command list was failed.");
-
-	return graphicsCommandList;
+    // TODO: Game is being power-suspended (or minimized).
 }
 
-ComPtr<ID3D12CommandAllocator> DirectXManager::CreateCommandAllocator(ComPtr<ID3D12Device6> device, CommandListType type)
+void DirectXManager::OnResuming()
 {
-	ComPtr<ID3D12CommandAllocator> allocator;
-	const auto result = device->CreateCommandAllocator(static_cast<D3D12_COMMAND_LIST_TYPE>(type), __uuidof(ID3D12CommandAllocator), (void**)allocator.ReleaseAndGetAddressOf());
-
-	if (FAILED(result))
-		throw std::exception("create command allocator was failed.");
-
-	return allocator;
+    // TODO: Game is being power-resumed (or returning from minimize).
 }
 
-ComPtr<IDXGISwapChain3> DirectXManager::CreateSwapChain(ComPtr<ID3D12CommandQueue> queue, ComPtr<IDXGIFactory4> factory, HWND hwnd)
+void DirectXManager::OnWindowSizeChanged(float width, float height)
 {
-	ComPtr<IDXGISwapChain1> swapChain;
-	ComPtr<IDXGISwapChain3> swapChain3;
-
-	RECT rect;
-	GetClientRect(hwnd, &rect);
-	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-	swapChainDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapChainDesc.AlphaMode = DXGI_ALPHA_MODE::DXGI_ALPHA_MODE_UNSPECIFIED;
-	swapChainDesc.Scaling = DXGI_SCALING::DXGI_SCALING_NONE;
-	swapChainDesc.BufferCount = SwapChainBufferCount;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-	swapChainDesc.Stereo = false;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-	swapChainDesc.Height = rect.bottom - rect.top;
-	swapChainDesc.Width = rect.right - rect.left;
-	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.SampleDesc.Quality = 0;
-	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG::DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-	DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullScreenDesc;
-	fullScreenDesc.RefreshRate.Denominator = 60;
-	fullScreenDesc.RefreshRate.Numerator = 1;
-	fullScreenDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
-	fullScreenDesc.Windowed = true;
-	fullScreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-
-	const auto result = factory->CreateSwapChainForHwnd(queue.Get(), hwnd, &swapChainDesc, nullptr, nullptr/* multi monitor */, swapChain.ReleaseAndGetAddressOf());
-
-	if (FAILED(result))
-		throw std::exception("create swapchain was failed.");
-	if (FAILED(swapChain.As(&swapChain3)))
-		throw std::exception("create swapchain was failed.");
-
-	return swapChain3;
+    CreateResources();
 }
 
-
-unsigned int DirectXManager::GetHeapByteSize(ComPtr<ID3D12Device6> device, DescriptorHeapType type)
+// These are the resources that depend on the device.
+void DirectXManager::CreateDevice()
 {
-	return device->GetDescriptorHandleIncrementSize(static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(type));
+    DWORD dxgiFactoryFlags = 0;
+
+#if defined(_DEBUG)
+    // Enable the debug layer (requires the Graphics Tools "optional feature").
+    //
+    // NOTE: Enabling the debug layer after device creation will invalidate the active device.
+    {
+        ComPtr<ID3D12Debug> debugController;
+        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf()))))
+        {
+            debugController->EnableDebugLayer();
+        }
+
+        ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
+        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(dxgiInfoQueue.GetAddressOf()))))
+        {
+            dxgiFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
+
+            dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
+            dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
+        }
+    }
+#endif
+
+    ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(_dxgiFactory.ReleaseAndGetAddressOf())));
+
+    ComPtr<IDXGIAdapter1> adapter = GetAdapter();
+
+    // Create the DX12 API device object.
+    ThrowIfFailed(D3D12CreateDevice(
+        adapter.Get(),
+        FeatureLevel,
+        IID_PPV_ARGS(device.ReleaseAndGetAddressOf())
+    ));
+
+    // Configure debug device (if active).
+    ComPtr<ID3D12InfoQueue> d3dInfoQueue;
+    if (SUCCEEDED(device.As(&d3dInfoQueue)))
+    {
+    #ifdef _DEBUG
+        d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+        d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+    #endif
+        D3D12_MESSAGE_ID hide[] =
+        {
+            D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,
+            D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE
+        };
+        D3D12_INFO_QUEUE_FILTER filter = {};
+        filter.DenyList.NumIDs = _countof(hide);
+        filter.DenyList.pIDList = hide;
+        d3dInfoQueue->AddStorageFilterEntries(&filter);
+    }
+
+    // Create the command queue.
+    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+    ThrowIfFailed(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(_commandQueue.ReleaseAndGetAddressOf())));
+
+    // Create descriptor heaps for render target views and depth stencil views.
+    D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc = {};
+    rtvDescriptorHeapDesc.NumDescriptors = SwapBufferCount;
+    rtvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+
+    D3D12_DESCRIPTOR_HEAP_DESC dsvDescriptorHeapDesc = {};
+    dsvDescriptorHeapDesc.NumDescriptors = 1;
+    dsvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+
+    ThrowIfFailed(device->CreateDescriptorHeap(&rtvDescriptorHeapDesc, IID_PPV_ARGS(_rtvDescriptorHeap.ReleaseAndGetAddressOf())));
+    ThrowIfFailed(device->CreateDescriptorHeap(&dsvDescriptorHeapDesc, IID_PPV_ARGS(m_dsvDescriptorHeap.ReleaseAndGetAddressOf())));
+
+    _rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+    // Create a command allocator for each back buffer that will be rendered to.
+    for (UINT n = 0; n < SwapBufferCount; n++)
+    {
+        ThrowIfFailed(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(m_commandAllocators[n].ReleaseAndGetAddressOf())));
+    }
+
+    // Create a command list for recording graphics commands.
+    ThrowIfFailed(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocators[0].Get(), nullptr, IID_PPV_ARGS(m_commandList.ReleaseAndGetAddressOf())));
+    ThrowIfFailed(m_commandList->Close());
+
+    // Create a fence for tracking GPU execution progress.
+    ThrowIfFailed(device->CreateFence(_fenceValues[_backBufferIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_fence.ReleaseAndGetAddressOf())));
+    _fenceValues[_backBufferIndex]++;
+
+    _fenceEvent.Attach(CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE));
+    if (!_fenceEvent.IsValid())
+    {
+        throw std::exception("CreateEvent");
+    }
+
+    // TODO: Initialize device dependent objects here (independent of window size).
 }
 
-ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptorHeap(ComPtr<ID3D12Device6> device, DescriptorHeapType type, int elementCount, bool accessFromShader)
+// Allocate all memory resources that change on a window SizeChanged event.
+void DirectXManager::CreateResources()
 {
-	ComPtr<ID3D12DescriptorHeap> heap;
-	D3D12_DESCRIPTOR_HEAP_DESC desc;
-	desc.Flags = accessFromShader ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	desc.NumDescriptors = elementCount;
-	desc.Type = static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(type);
-	desc.NodeMask = 0;
+    // Wait until all previous GPU work is complete.
+    WaitForGpu();
 
-	const auto result = device->CreateDescriptorHeap(&desc, __uuidof(ID3D12DescriptorHeap), (void**)heap.ReleaseAndGetAddressOf());
+    // Release resources that are tied to the swap chain and update fence values.
+    for (auto index = 0U; index < SwapBufferCount; index++)
+    {
+        _renderTargets[index].Reset();
+        _fenceValues[index] = _fenceValues[_backBufferIndex];
+    }
+    const auto size = Application::GetImplAs<WindowsApplicationImpl>().WindowSize();
+    const DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
+    const DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT;
+    const unsigned int backBufferWidth = static_cast<unsigned int>(size.x);
+    const unsigned int backBufferHeight = static_cast<unsigned int>(size.y);
 
-	if (FAILED(result))
-		throw std::exception("create descriptor heap was failed.");
+    // If the swap chain already exists, resize it, otherwise create one.
+    if (_swapChain)
+    {
+        HRESULT hr = _swapChain->ResizeBuffers(SwapBufferCount, backBufferWidth, backBufferHeight, backBufferFormat, 0);
 
-	return heap;
+        if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+        {
+            OnDeviceLosted();
+            return;
+        }
+        else
+        {
+            ThrowIfFailed(hr);
+        }
+    }
+    else
+    {
+        // Create a descriptor for the swap chain.
+        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+        swapChainDesc.Width = backBufferWidth;
+        swapChainDesc.Height = backBufferHeight;
+        swapChainDesc.Format = backBufferFormat;
+        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc.BufferCount = SwapBufferCount;
+        swapChainDesc.SampleDesc.Count = 1;
+        swapChainDesc.SampleDesc.Quality = 0;
+        swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+
+        DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc = {};
+        fsSwapChainDesc.Windowed = TRUE;
+        auto hwnd = Application::GetImplAs<WindowsApplicationImpl>().GetHWND();
+        // Create a swap chain for the window.
+        ComPtr<IDXGISwapChain1> swapChain;
+        ThrowIfFailed(_dxgiFactory->CreateSwapChainForHwnd(
+            _commandQueue.Get(),
+            hwnd,
+            &swapChainDesc,
+            &fsSwapChainDesc,
+            nullptr,
+            swapChain.GetAddressOf()
+        ));
+
+        ThrowIfFailed(swapChain.As(&_swapChain));
+
+        // This template does not support exclusive fullscreen mode and prevents DXGI from responding to the ALT+ENTER shortcut
+        ThrowIfFailed(_dxgiFactory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER));
+    }
+
+    // Obtain the back buffers for this window which will be the final render targets
+    // and create render target views for each of them.
+    for (UINT index = 0; index < SwapBufferCount; index++)
+    {
+        ThrowIfFailed(_swapChain->GetBuffer(index, IID_PPV_ARGS(_renderTargets[index].GetAddressOf())));
+
+        auto name = fmt::format(L"Swapchain RTV[%d]", index);
+        _renderTargets[index]->SetName(name.data());
+
+        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvDescriptor(
+            _rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+            static_cast<INT>(index), _rtvDescriptorSize);
+        device->CreateRenderTargetView(_renderTargets[index].Get(), nullptr, rtvDescriptor);
+    }
+
+    // Reset the index to the current back buffer.
+    _backBufferIndex = _swapChain->GetCurrentBackBufferIndex();
+
+    // Allocate a 2-D surface as the depth/stencil buffer and create a depth/stencil view
+    // on this surface.
+    CD3DX12_HEAP_PROPERTIES depthHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+
+    D3D12_RESOURCE_DESC depthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+        depthBufferFormat,
+        backBufferWidth,
+        backBufferHeight,
+        1, // This depth stencil view has only one texture.
+        1  // Use a single mipmap level.
+    );
+    depthStencilDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+    D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
+    depthOptimizedClearValue.Format = depthBufferFormat;
+    depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
+    depthOptimizedClearValue.DepthStencil.Stencil = 0;
+
+    ThrowIfFailed(device->CreateCommittedResource(
+        &depthHeapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &depthStencilDesc,
+        D3D12_RESOURCE_STATE_DEPTH_WRITE,
+        &depthOptimizedClearValue,
+        IID_PPV_ARGS(dsv.ReleaseAndGetAddressOf())
+    ));
+
+    dsv->SetName(L"Swapchain DSV");
+
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+    dsvDesc.Format = depthBufferFormat;
+    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+
+    device->CreateDepthStencilView(dsv.Get(), &dsvDesc, m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+    // TODO: Initialize windows-size dependent objects here.
 }
 
-void SetResourceBarrier(ID3D12GraphicsCommandList* commandList, ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
+void DirectXManager::WaitForGpu()
 {
-	D3D12_RESOURCE_BARRIER descBarrier;
-	ZeroMemory(&descBarrier, sizeof(descBarrier));
-	descBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	descBarrier.Transition.pResource = resource;
-	descBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	descBarrier.Transition.StateBefore = before;
-	descBarrier.Transition.StateAfter = after;
-	commandList->ResourceBarrier(1, &descBarrier);
+    if (_commandQueue && _fence && _fenceEvent.IsValid())
+    {
+        // Schedule a Signal command in the GPU queue.
+        UINT64 fenceValue = _fenceValues[_backBufferIndex];
+        if (SUCCEEDED(_commandQueue->Signal(_fence.Get(), fenceValue)))
+        {
+            // Wait until the Signal has been processed.
+            if (SUCCEEDED(_fence->SetEventOnCompletion(fenceValue, _fenceEvent.Get())))
+            {
+                WaitForSingleObjectEx(_fenceEvent.Get(), INFINITE, FALSE);
+
+                // Increment the fence value for the current frame.
+                _fenceValues[_backBufferIndex]++;
+            }
+        }
+    }
 }
 
-void WaitForCommandQueue(ComPtr<ID3D12CommandQueue> queue, ComPtr<ID3D12Fence> fence, HANDLE fenceEvent)
+void DirectXManager::MoveToNextFrame()
 {
-	static UINT64 frames = 0;
-	fence->SetEventOnCompletion(frames, fenceEvent);
-	queue->Signal(fence.Get(), frames);
-	WaitForSingleObject(fenceEvent, INFINITE);
-	frames++;
+    // Schedule a Signal command in the queue.
+    const UINT64 currentFenceValue = _fenceValues[_backBufferIndex];
+    ThrowIfFailed(_commandQueue->Signal(_fence.Get(), currentFenceValue));
+
+    // Update the back buffer index.
+    _backBufferIndex = _swapChain->GetCurrentBackBufferIndex();
+
+    // If the next frame is not ready to be rendered yet, wait until it is ready.
+    if (_fence->GetCompletedValue() < _fenceValues[_backBufferIndex])
+    {
+        ThrowIfFailed(_fence->SetEventOnCompletion(_fenceValues[_backBufferIndex], _fenceEvent.Get()));
+        WaitForSingleObjectEx(_fenceEvent.Get(), INFINITE, FALSE);
+    }
+
+    // Set the fence value for the next frame.
+    _fenceValues[_backBufferIndex] = currentFenceValue + 1;
 }
 
-#include <ctime>
-#include <cmath>
-#include <chrono>
-
-void DirectXManager::Rendering()
+// This method acquires the first available hardware adapter that supports Direct3D 12.
+// If no such adapter can be found, try WARP. Otherwise throw an exception.
+ComPtr<IDXGIAdapter1> DirectXManager::GetAdapter()
 {
-	const auto hwnd = Application::GetImplAs<WinImpl>().GetHWND();
-	RECT rect;
-	GetClientRect(hwnd, &rect);
-	const auto now = std::chrono::system_clock::now().time_since_epoch();
-	const auto miliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
-	const auto seed = std::fmod((double)miliseconds, 100000.0) / 1000.0f;
-	const auto r = std::sinf((float)seed);
-	const auto g = std::cosf((float)seed);
-	const auto b = std::tanf((float)seed);
-	const auto a = 0.1f;
+    ComPtr<IDXGIAdapter1> adapter;
+    for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != _dxgiFactory->EnumAdapters1(adapterIndex, adapter.ReleaseAndGetAddressOf()); adapterIndex++)
+    {
+        DXGI_ADAPTER_DESC1 desc;
+        ThrowIfFailed(adapter->GetDesc1(&desc));
 
-	float clearColor[4] = { r,g,b,a };
-	D3D12_VIEWPORT viewport;
-	viewport.TopLeftX = 0; viewport.TopLeftY = 0;
-	viewport.Width = static_cast<float>(rect.right - rect.left);
-	viewport.Height = static_cast<float>(rect.bottom - rect.top);
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
+        if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+            continue;
 
-	const auto rtvIndex = this->_swapChain->GetCurrentBackBufferIndex();
-	auto rtvHandle = this->_swapChainDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	rtvHandle.ptr += DirectXManager::GetHeapByteSize(this->_device, DescriptorHeapType::RenderTarget) * rtvIndex;
+        // Check to see if the adapter supports Direct3D 12, but don't create the actual device yet.
+        if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), FeatureLevel, __uuidof(ID3D12Device), nullptr)))
+            break;
+    }
 
-	SetResourceBarrier(this->_graphicsCommandList.Get(), this->_swapChainRTV[rtvIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	this->_graphicsCommandList->RSSetViewports(1, &viewport);
-	this->_graphicsCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-	SetResourceBarrier(this->_graphicsCommandList.Get(), this->_swapChainRTV[rtvIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-	this->_graphicsCommandList->Close();
+#if _DEBUG
+    if (!adapter)
+    {
+        if (FAILED(_dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf()))))
+            throw std::exception("WARP12 not available. Enable the 'Graphics Tools' optional feature");
+    }
+#endif
 
-	ID3D12CommandList* commandList = this->_graphicsCommandList.Get();
-	this->_renderingQueue->ExecuteCommandLists(1, &commandList);
-	this->_swapChain->Present(1, 0);
+    if (!adapter)
+        throw std::exception("No Direct3D 12 device found");
 
-	WaitForCommandQueue(this->_renderingQueue, this->_renderingQueueFence, this->_fenceEvenet);
+    return adapter;
+}
 
-	this->_commandAllocator->Reset();
-	this->_graphicsCommandList->Reset(this->_commandAllocator.Get(), nullptr);
+void DirectXManager::OnDeviceLosted()
+{
+    for (UINT index = 0; index < SwapBufferCount; index++)
+    {
+        m_commandAllocators[index].Reset();
+        _renderTargets[index].Reset();
+    }
+
+    dsv.Reset();
+    _fence.Reset();
+    m_commandList.Reset();
+    _swapChain.Reset();
+    _rtvDescriptorHeap.Reset();
+    m_dsvDescriptorHeap.Reset();
+    _commandQueue.Reset();
+    device.Reset();
+    _dxgiFactory.Reset();
+
+    CreateDevice();
+    CreateResources();
 }
