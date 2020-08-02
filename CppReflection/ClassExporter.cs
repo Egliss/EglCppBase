@@ -59,7 +59,7 @@ namespace CppReflection
                     ? "[](){return new " + item.FullName + "(); }"
                     : "[](){return nullptr; }";
 
-                builder.AppendLine($"	_indexedTypes.emplace_back(\"{item.FullName}\", {isAbstract},{chainStr},{constructor});");
+                builder.AppendLine($"	_indexedTypes.emplace_back({item.Id}, \"{item.FullName}\", {isAbstract},{chainStr},{constructor});");
                 builder.AppendLine($"	_typesindices.emplace(\"{item.FullName}\"s, {item.Id});");
             }
             builder.AppendLine("}");

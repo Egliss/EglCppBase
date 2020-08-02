@@ -14,18 +14,20 @@ namespace Egliss::Reflection
 	{
 	public:
 		DynamicTypeDescription() = default;
-		DynamicTypeDescription(std::string&& name, bool isAbstract, std::vector<int>&& parentTypeIds, std::function<void* ()>&& constructor):
+		DynamicTypeDescription(int typeId, std::string&& name, bool isAbstract, std::vector<int>&& parentTypeIds, std::function<void* ()>&& constructor):
+			id(typeId),
 			name(std::move(name)),
 			isAbstract(isAbstract),
 			parentTypeIds(std::move(parentTypeIds)),
 			constructor(std::move(constructor))
 		{}
+
 		bool IsChildOf(int typeId) const
 		{
-			return std::binary_search(this->parentTypeIds.rbegin(), this->parentTypeIds.rend(), typeId);
+			return std::binary_search(this->parentTypeIds.begin(), this->parentTypeIds.end(), typeId);
 		}
 
-		const int Id() const { return this->parentTypeIds[0]; }
+		const int id;
 		const std::string name;
 		const bool isAbstract;
 		const std::vector<int> parentTypeIds;

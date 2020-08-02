@@ -83,7 +83,7 @@ namespace CppReflection
                     return;
                 }
 
-                var baseComponentName = "Egliss::IApplicationComponent";
+                var baseComponentName = "Egliss::IReflectable";
                 var vcClasses = project.RootNode
                     .FindAllOf<ClassNode>();
                 var baseComponent = vcClasses.Where(m => m.FullName == "global::" + baseComponentName).FirstOrDefault();
@@ -103,7 +103,11 @@ namespace CppReflection
                 }
 
                 var tree = TypeDeriverTree.MakeTree(components, baseComponent);
-                var description = TypeDescription.CreateDescription(tree);
+                var description = TypeDescription
+                    .CreateDescription(tree)
+                    .Select(m=>m.Value)
+                    .OrderBy(m=>m.Id)
+                    .ToList();
                 var directory = Path.GetDirectoryName(project.Project.FileName);
                 ClassExporter.OutputCppFile(description, $"{directory}\\Sources\\Reflection\\DynamicType.cpp");
                 ClassExporter.OutputInlineFile(description, $"{directory}\\Sources\\Reflection\\StaticType.inl");
