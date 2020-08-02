@@ -45,9 +45,8 @@ void DirectXManager::Render()
 {
     ClearScreen();
 
-    // TODO: Add your rendering code here.
 
-    // Show the new frame.
+
     Present();
 }
 

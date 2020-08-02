@@ -19,6 +19,7 @@ bool Application::Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicat
 	if (!initialized)
 		return false;
 
+	// Initialize All AppComponents
 	const auto interfaceId = DynamicTypeManager::IndexOf(StaticType<IAppComponent>::Id).Id();
 	for (auto&& type : DynamicTypeManager::Types())
 	{
@@ -26,10 +27,11 @@ bool Application::Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicat
 			continue;
 		if (!type.HasTypeRelation(interfaceId))
 			continue;
-		auto uniquePtr = std::unique_ptr<IAppComponent>(reinterpret_cast<IAppComponent*>(type.constructor()));
-		auto ptr = uniquePtr.get();
+
+		auto component = reinterpret_cast<IAppComponent*>(type.constructor());
+		auto uniquePtr = std::unique_ptr<IAppComponent>(component);
 		Application::_components.emplace(type.Id(), std::move(uniquePtr));
-		ptr->Initialize();
+		component->Initialize();
 	}
 	return true;
 }

@@ -2,8 +2,6 @@
 
 #include "../IApplicationComponent.hpp"
 
-#include <memory>
-
 namespace Egliss
 {
 	class Random : public IApplicationComponent
