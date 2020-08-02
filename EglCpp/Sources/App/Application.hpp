@@ -15,7 +15,13 @@ namespace Egliss
 	public:
 		static bool Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicationInitializeArg&& arg);
 		static void Finalize();
-
+		static void Update()
+		{
+			for (auto&& component : Application::_updatableComponents)
+			{
+				component.second->Update();
+			}
+		}
 		// Cast to platform implement 
 		template<class T>
 		static T& GetImplAs()
@@ -42,5 +48,6 @@ namespace Egliss
 	private:
 		static std::unique_ptr<IApplicationImpl> _impl;
 		static std::map<int, std::unique_ptr<IApplicationComponent>> _components;
+		static std::map<int, IAppComponentUpdateLister*> _updatableComponents;
 	};
 }

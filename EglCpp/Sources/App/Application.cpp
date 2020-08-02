@@ -8,6 +8,7 @@ using namespace Egliss;
 
 std::unique_ptr<IApplicationImpl> Application::_impl = std::unique_ptr<IApplicationImpl>(nullptr);
 std::map<int, std::unique_ptr<IApplicationComponent>> Application::_components;
+std::map<int, IAppComponentUpdateLister*> Application::_updatableComponents;
 
 bool Application::Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicationInitializeArg&& arg)
 {
@@ -20,24 +21,41 @@ bool Application::Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicat
 		return false;
 
 	// Initialize All AppComponents
-	const auto interfaceId = DynamicTypeManager::IndexOf(StaticType<IAppComponent>::Id).Id();
+	const auto appComponentId = DynamicTypeManager::IndexOf(StaticType<IAppComponent>::Id).id;
+	const auto updatableComponentId = DynamicTypeManager::IndexOf(StaticType<IAppComponentUpdateLister>::Id).id;
 	for (auto&& type : DynamicTypeManager::Types())
 	{
 		if (type.isAbstract)
 			continue;
-		if (!type.IsChildOf(interfaceId))
+		if (!type.IsChildOf(appComponentId))
 			continue;
 
 		auto component = reinterpret_cast<IAppComponent*>(type.constructor());
 		auto uniquePtr = std::unique_ptr<IAppComponent>(component);
-		Application::_components.emplace(type.Id(), std::move(uniquePtr));
+
+		Application::_components.emplace(type.id, std::move(uniquePtr));
+
+		if (type.IsChildOf(updatableComponentId))
+		{
+			auto updatable = reinterpret_cast<IAppComponentUpdateLister*>(component);
+			Application::_updatableComponents.emplace(type.id, updatable);
+		}
+		
 		component->Initialize();
 	}
+
+	// Initialized Event
+	for (auto&& component : Application::_components)
+	{
+		component.second->AllComponentInitialized();
+	}
+
 	return true;
 }
 
 void Application::Finalize()
 {
+	Application::_updatableComponents.clear();
 	Application::_components.clear();
 	Application::_impl->Finalize();
 	Application::_impl.reset(nullptr);
