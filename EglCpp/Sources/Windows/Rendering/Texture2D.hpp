@@ -24,8 +24,6 @@ namespace Egliss::Rendering
 		}
 	protected:
 
-		virtual bool InternalInitialize() override;
-
 	private:
 		std::string _path;
 		Vector2 _resolution;

@@ -13,13 +13,9 @@ namespace Egliss
 	{
 		friend class Resource;
 	public:
-		std::shared_ptr<Resource> FindResource(const std::string& key) const
+		const std::vector<std::shared_ptr<Resource>>& GetDynamicReosurces() const
 		{
-			const auto itr = _keyResource.find(key);
-			if (itr == this->_keyResource.end())
-				return nullptr;
-
-			return itr->second;
+			return this->_dynamicResource;
 		}
 		std::shared_ptr<Resource> FindPhysicalResource(const std::string& physicalPath)const
 		{
@@ -38,8 +34,8 @@ namespace Egliss
 	private:
 		// physical directory referenced resource
 		std::unordered_map <std::string, std::shared_ptr<Resource>> _physicalResources;
-		std::unordered_map <std::string, std::shared_ptr<Resource>> _keyResource;
+		std::vector<std::shared_ptr<Resource>> _dynamicResource;
 
-		void Register(const std::string& key, std::shared_ptr<Resource> resource);
+		void Register(std::shared_ptr<Resource> resource);
 	};
 }

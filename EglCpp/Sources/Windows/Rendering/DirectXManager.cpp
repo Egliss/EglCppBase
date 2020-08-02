@@ -11,8 +11,8 @@
 #include "../DirectXUtility.hpp"
 #include "../../App/Components/Random.hpp"
 
-#pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
 using namespace Egliss;
@@ -159,6 +159,7 @@ void DirectXManager::CreateDevice()
             dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
         }
     }
+    
 #endif
 
     ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(_dxgiFactory.ReleaseAndGetAddressOf())));

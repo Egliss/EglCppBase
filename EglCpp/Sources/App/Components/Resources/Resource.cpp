@@ -5,20 +5,13 @@
 
 using namespace Egliss;
 
-void Resource::Initialize(std::shared_ptr<Resource> resource)
+void Resource::Register(std::shared_ptr<Resource> resource)
 {
 	if (!resource)
 	{
 		throw std::exception("invalid resource detected --> Initialize require constructed resource shared pointer.");
 	}
 	this->_ownRef = resource;
-	const auto avalable = this->InternalInitialize();
-	if (avalable)
-	{
-		Application::GetAppComponent<Resources>().Register(this->_key, resource);
-	}
-	else
-	{
-		throw std::exception("not implement --> Resources::Register failed.");
-	}
+	
+	Application::GetAppComponent<Resources>().Register(resource);
 }

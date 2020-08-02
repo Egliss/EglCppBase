@@ -8,16 +8,23 @@ using namespace Egliss;
 void Resources::Initialize()
 {
 	// insert core resource
-	Rendering::Texture2D::Create("Icon","Resources/app_icon.png");
+	Rendering::Texture2D::Create("Icon", "Resources/app_icon.png");
 }
 
 void Resources::Finalize()
 {
-	this->_keyResource.clear();
+	this->_dynamicResource.clear();
 	this->_physicalResources.clear();
 }
 
-void Resources::Register(const std::string& key, std::shared_ptr<Resource> resource)
+void Resources::Register(std::shared_ptr<Resource> resource)
 {
-	this->_keyResource.emplace(key, resource);
+	if (resource->Key().empty())
+	{
+		this->_dynamicResource.emplace_back(resource);
+	}
+	else
+	{
+		this->_physicalResources.emplace(resource->Key(), resource);
+	}
 }

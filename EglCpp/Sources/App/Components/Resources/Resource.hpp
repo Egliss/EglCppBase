@@ -15,7 +15,7 @@ namespace Egliss
 			return this->_key;
 		}
 
-		void Initialize(std::shared_ptr<Resource> resource);
+		void Register(std::shared_ptr<Resource> resource);
 
 		template<class T>
 		std::shared_ptr<T> AsRef() const
@@ -30,6 +30,5 @@ namespace Egliss
 		std::string _key;
 
 		Resource() = default;
-		virtual bool InternalInitialize() = 0;
 	};
 }

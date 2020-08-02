@@ -15,28 +15,26 @@ std::shared_ptr<Texture2D> Texture2D::Create(const std::string& key, const std::
 	auto texture = std::shared_ptr<Texture2D>(new Texture2D());
 	texture->_key = key;
 	texture->_path = path;
-	texture->Initialize(texture);
+
+	auto result = DirectX::LoadWICTextureFromFile(
+		DirectXManager::GetInstance().Device(),
+		StringUtility::ToWString(path.data()).data(),
+		texture->_texture.ReleaseAndGetAddressOf(),
+		texture->_data,
+		texture->_subresourceDesc
+	);
+
+	if (FAILED(result))
+	{
+		throw std::exception(("texture initialize failed --> " + path).data());
+	}
+
+	texture->Register(texture);
+	
 	return texture;
 }
 
-bool Texture2D::InternalInitialize()
-{
-	auto result = DirectX::LoadWICTextureFromFile(
-		DirectXManager::GetInstance().Device(),
-		StringUtility::ToWString(this->_path.data()).data(),
-		this->_texture.ReleaseAndGetAddressOf(),
-		this->_data,
-		this->_subresourceDesc
-	);
-	if (FAILED(result)) 
-	{
-		throw std::exception(("texture initialize failed --> " + this->_path).data());
-	}
-
-	return true;
-}
-
-Texture2D::Texture2D()
+Texture2D::Texture2D(): _subresourceDesc()
 {
 }
 
