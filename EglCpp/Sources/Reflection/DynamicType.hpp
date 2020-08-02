@@ -20,7 +20,7 @@ namespace Egliss::Reflection
 			parentTypeIds(std::move(parentTypeIds)),
 			constructor(std::move(constructor))
 		{}
-		bool HasTypeRelation(int typeId) const
+		bool IsChildOf(int typeId) const
 		{
 			return std::binary_search(this->parentTypeIds.rbegin(), this->parentTypeIds.rend(), typeId);
 		}

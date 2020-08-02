@@ -25,7 +25,7 @@ bool Application::Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicat
 	{
 		if (type.isAbstract)
 			continue;
-		if (!type.HasTypeRelation(interfaceId))
+		if (!type.IsChildOf(interfaceId))
 			continue;
 
 		auto component = reinterpret_cast<IAppComponent*>(type.constructor());
