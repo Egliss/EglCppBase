@@ -19,7 +19,7 @@ std::unordered_map<std::string, int> DynamicTypeManager::_typesindices;
 
 void DynamicTypeManager::Initialize()
 {
-	_indexedTypes.emplace_back(0, "Egliss::IReflectable", false,std::vector<int>({}),[](){return new Egliss::IReflectable(); });
+	_indexedTypes.emplace_back(0, "Egliss::IReflectable", true,std::vector<int>({}),[](){return nullptr; });
 	_typesindices.emplace("Egliss::IReflectable"s, 0);
 	_indexedTypes.emplace_back(1, "Egliss::IApplicationComponent", true,std::vector<int>({0}),[](){return nullptr; });
 	_typesindices.emplace("Egliss::IApplicationComponent"s, 1);

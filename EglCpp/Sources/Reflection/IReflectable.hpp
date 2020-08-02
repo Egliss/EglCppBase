@@ -3,9 +3,9 @@
 namespace Egliss
 {
 	// ƒŠƒtƒŒƒNƒVƒ‡ƒ“‘ÎÛ
-	class IReflectable
+	class IReflectable abstract
 	{
 	public:
-
+		virtual ~IReflectable() {};
 	};
 }
