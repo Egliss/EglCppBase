@@ -121,7 +121,7 @@ namespace Egliss
 
 		bool IsZero() const
 		{
-			if (memcmp((const void*)this, (const void*)&Vector3::Zero, sizeof(Vector3)) == 0)
+			if (std::memcmp((const void*)this, (const void*)&Vector3::Zero, sizeof(Vector3)) == 0)
 				return true;
 			return false;
 		}
