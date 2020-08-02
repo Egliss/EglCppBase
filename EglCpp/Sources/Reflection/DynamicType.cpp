@@ -2,10 +2,13 @@
 #include "pch.h"
 #include "DynamicType.hpp"
 
+#include "IReflectable.hpp"
 #include "../App/IApplicationComponent.hpp"
 #include "../App/Components/FpsController.hpp"
+#include "../App/Components/HardwareInput.hpp"
 #include "../App/Components/Resources/Resources.hpp"
 #include "../App/Components/Random.hpp"
+#include "../App/IApplicationComponent.hpp"
 
 using namespace Egliss::Reflection;
 using namespace std::string_literals;
@@ -16,12 +19,18 @@ std::unordered_map<std::string, int> DynamicTypeManager::_typesindices;
 
 void DynamicTypeManager::Initialize()
 {
-	_indexedTypes.emplace_back("Egliss::IApplicationComponent", true,std::vector<int>({0}),[](){return nullptr; });
-	_typesindices.emplace("Egliss::IApplicationComponent"s, 0);
-	_indexedTypes.emplace_back("Egliss::FpsController", false,std::vector<int>({1 ,0}),[](){return new Egliss::FpsController(); });
-	_typesindices.emplace("Egliss::FpsController"s, 1);
-	_indexedTypes.emplace_back("Egliss::Resources", false,std::vector<int>({2 ,0}),[](){return new Egliss::Resources(); });
-	_typesindices.emplace("Egliss::Resources"s, 2);
-	_indexedTypes.emplace_back("Egliss::Random", false,std::vector<int>({3 ,0}),[](){return new Egliss::Random(); });
-	_typesindices.emplace("Egliss::Random"s, 3);
+	_indexedTypes.emplace_back(0, "Egliss::IReflectable", false,std::vector<int>({}),[](){return new Egliss::IReflectable(); });
+	_typesindices.emplace("Egliss::IReflectable"s, 0);
+	_indexedTypes.emplace_back(1, "Egliss::IApplicationComponent", true,std::vector<int>({0}),[](){return nullptr; });
+	_typesindices.emplace("Egliss::IApplicationComponent"s, 1);
+	_indexedTypes.emplace_back(2, "Egliss::FpsController", false,std::vector<int>({0 ,1}),[](){return new Egliss::FpsController(); });
+	_typesindices.emplace("Egliss::FpsController"s, 2);
+	_indexedTypes.emplace_back(3, "Egliss::HardwareInput", false,std::vector<int>({0 ,1 ,6}),[](){return new Egliss::HardwareInput(); });
+	_typesindices.emplace("Egliss::HardwareInput"s, 3);
+	_indexedTypes.emplace_back(4, "Egliss::Resources", false,std::vector<int>({0 ,1}),[](){return new Egliss::Resources(); });
+	_typesindices.emplace("Egliss::Resources"s, 4);
+	_indexedTypes.emplace_back(5, "Egliss::Random", false,std::vector<int>({0 ,1}),[](){return new Egliss::Random(); });
+	_typesindices.emplace("Egliss::Random"s, 5);
+	_indexedTypes.emplace_back(6, "Egliss::IAppComponentUpdateLister", true,std::vector<int>({0}),[](){return nullptr; });
+	_typesindices.emplace("Egliss::IAppComponentUpdateLister"s, 6);
 }

@@ -249,6 +249,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Sources\App\Application.cpp" />
+    <ClCompile Include="Sources\App\Components\HardwareInput.cpp" />
     <ClCompile Include="Sources\App\Components\Resources\Resource.cpp" />
     <ClCompile Include="Sources\App\Components\Resources\Resources.cpp" />
     <ClCompile Include="Sources\Math\Math.cpp" />
@@ -275,6 +276,7 @@
     <ClInclude Include="Sources\App\AppConfiguration.hpp" />
     <ClInclude Include="Sources\App\Application.hpp" />
     <ClInclude Include="Sources\App\Components\FpsController.hpp" />
+    <ClInclude Include="Sources\App\Components\HardwareInput.hpp" />
     <ClInclude Include="Sources\App\Components\Resources\Resource.hpp" />
     <ClInclude Include="Sources\App\Components\Resources\Resources.hpp" />
     <ClInclude Include="Sources\App\IApplicationComponent.hpp" />
@@ -287,6 +289,7 @@
     <ClInclude Include="Sources\Math\Vector4.hpp" />
     <ClInclude Include="Sources\Math\XMath.hpp" />
     <ClInclude Include="Sources\Reflection\DynamicType.hpp" />
+    <ClInclude Include="Sources\Reflection\IReflectable.hpp" />
     <ClInclude Include="Sources\Reflection\StaticType.hpp" />
     <ClInclude Include="Sources\Utility\DateTime.hpp" />
     <ClInclude Include="Sources\Utility\Event.hpp" />
