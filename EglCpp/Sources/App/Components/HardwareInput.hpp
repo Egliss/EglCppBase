@@ -17,11 +17,11 @@ namespace Egliss
 			IAppComponentUpdateLister(StaticType<Resources>::Id) {};
 		~HardwareInput() = default;
 
-		enum class InputState : unsigned int
+		enum class InputState : int
 		{
-			None = 0, Press = 2, Down = 4, Up = 8
+			None = 0, Down = 2, Press = 4, Up = 8
 		};
-		enum class MouseInputType : unsigned int
+		enum class MouseInputType : char
 		{
 			Left, Middle, Right, Button1, Button2
 		};
@@ -42,4 +42,20 @@ namespace Egliss
 	private:
 		_Impl* _impl = nullptr;
 	};
+}
+
+namespace Egliss
+{
+	inline HardwareInput::InputState operator+(HardwareInput::InputState left, HardwareInput::InputState right)
+	{
+		return static_cast<HardwareInput::InputState>((int)left + (int)right);
+	}
+	inline HardwareInput::InputState operator&(HardwareInput::InputState left, HardwareInput::InputState right)
+	{
+		return static_cast<HardwareInput::InputState>((int)left & (int)right);
+	}
+	inline HardwareInput::InputState operator|(HardwareInput::InputState left, HardwareInput::InputState right)
+	{
+		return static_cast<HardwareInput::InputState>((int)left | (int)right);
+	}
 }
