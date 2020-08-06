@@ -13,6 +13,7 @@
 #endif // _WIN32
 
 using namespace DirectX;
+using namespace Egliss;
 
 namespace Egliss
 {
@@ -30,16 +31,14 @@ namespace Egliss
         }
         Mouse mouse;
         Keyboard keyboard;
-        Mouse::State mouseState;
-        Keyboard::State keyState;
+        Mouse::State mouseState = {};
+        Keyboard::State keyState = {};
         Mouse::ButtonStateTracker mouseTracker;
         Keyboard::KeyboardStateTracker keyTracker;
         std::map<Mouse::ButtonStateTracker::ButtonState, HardwareInput::InputState> MouseStateMap;
     };
 }
 
-using namespace Egliss;
-#include "../../Utility/StringUtility.hpp"
 HardwareInput::InputState HardwareInput::GetKeyboardInput(int keyCode)
 {
     const auto key = static_cast<Keyboard::Keys>(keyCode);
@@ -106,7 +105,6 @@ void HardwareInput::Finalize()
     delete this->_impl;
 }
 
-#include <WinUser.h>
 void HardwareInput::Update()
 {
     // TODO twice copy 
@@ -115,7 +113,5 @@ void HardwareInput::Update()
 
     this->_impl->keyTracker.Update(this->_impl->keyState);
     this->_impl->mouseTracker.Update(this->_impl->mouseState);
-
-    GetKeyboardInput(VK_LSHIFT);
 }
 
