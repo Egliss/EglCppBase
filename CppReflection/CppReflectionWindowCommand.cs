@@ -83,7 +83,7 @@ namespace CppReflection
                     return;
                 }
 
-                var baseComponentName = "Egliss::IReflectable";
+                var baseComponentName = "Egliss::Reflection::Reflectable";
                 var vcClasses = project.RootNode
                     .FindAllOf<ClassNode>();
                 var baseComponent = vcClasses.Where(m => m.FullName == "global::" + baseComponentName).FirstOrDefault();

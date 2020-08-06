@@ -10,7 +10,7 @@ namespace Egliss { class IAppComponentUpdateLister; }
 
 namespace Egliss::Reflection
 {
-    template<> class StaticTypeDescription<Egliss::IReflectable> { public: static constexpr int Id = 0; static constexpr std::string_view Name = "Egliss::IReflectable"; };
+    template<> class StaticTypeDescription<Egliss::Reflection::Reflectable> { public: static constexpr int Id = 0; static constexpr std::string_view Name = "Egliss::Reflection::Reflectable"; };
         template<> class StaticTypeDescription<Egliss::IApplicationComponent> { public: static constexpr int Id = 1; static constexpr std::string_view Name = "Egliss::IApplicationComponent"; };
             template<> class StaticTypeDescription<Egliss::FpsController> { public: static constexpr int Id = 2; static constexpr std::string_view Name = "Egliss::FpsController"; };
             template<> class StaticTypeDescription<Egliss::HardwareInput> { public: static constexpr int Id = 3; static constexpr std::string_view Name = "Egliss::HardwareInput"; };

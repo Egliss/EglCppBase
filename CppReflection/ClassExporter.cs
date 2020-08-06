@@ -56,7 +56,7 @@ namespace CppReflection
                 string chainStr = $"std::vector<int>({{{string.Join(" ,", item.ParentChain.Select(m => m.ToString()))}}})";
                 string isAbstract = (!item.IsNotAbstract).ToString().ToLower();
                 string constructor = item.IsNotAbstract
-                    ? "[](){return new " + item.FullName + "(); }"
+                    ? $"[](){{return new {item.FullName}(); }}"
                     : "[](){return nullptr; }";
 
                 builder.AppendLine($"	_indexedTypes.emplace_back({item.Id}, \"{item.FullName}\", {isAbstract},{chainStr},{constructor});");
