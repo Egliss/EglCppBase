@@ -12,7 +12,9 @@ namespace Egliss
 	{
 		class _Impl;
 	public:
-		HardwareInput() = default;
+		HardwareInput() : 
+			IApplicationComponent(StaticType<Resources>::Id), 
+			IAppComponentUpdateLister(StaticType<Resources>::Id) {};
 		~HardwareInput() = default;
 
 		enum class InputState : unsigned int

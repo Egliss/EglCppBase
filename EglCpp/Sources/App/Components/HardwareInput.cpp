@@ -95,7 +95,6 @@ void HardwareInput::Initialize()
 
     this->_impl->mouseTracker.Reset();
     this->_impl->keyTracker.Reset();
-
     this->Update();
 }
 

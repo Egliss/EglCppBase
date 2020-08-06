@@ -102,7 +102,7 @@ void WindowsApplicationImpl::Update()
 {
 	Application::GetAppComponent<FpsController>().Tick([]()
 	{
-
+		Application::Update();
 		Rendering::DirectXManager::GetInstance().Render();
 	});
 	// UpdateWindow(this->_hwnd);

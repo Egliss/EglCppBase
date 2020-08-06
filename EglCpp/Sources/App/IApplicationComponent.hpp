@@ -1,13 +1,14 @@
 #pragma once
 
-#include "../Reflection/IReflectable.hpp"
 #include <string>
+#include "../Reflection/Reflectable.hpp"
 
 namespace Egliss
 {
-	class IApplicationComponent : public IReflectable
+	class IApplicationComponent : public Reflection::Reflectable
 	{
 	public:
+		IApplicationComponent(int typeId) : Reflectable(typeId) {}
 		virtual ~IApplicationComponent() {}
 
 		virtual void Initialize() = 0;
@@ -18,9 +19,10 @@ namespace Egliss
 	};
 	using IAppComponent = IApplicationComponent;
 
-	class IAppComponentUpdateLister : public IReflectable
+	class IAppComponentUpdateLister : public Reflection::Reflectable
 	{
 	public:
+		IAppComponentUpdateLister(int typeId) : Reflectable(typeId) {}
 		virtual ~IAppComponentUpdateLister() {}
 		virtual void Update() = 0;
 	};

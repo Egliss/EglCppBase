@@ -21,23 +21,23 @@ bool Application::Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicat
 		return false;
 
 	// Initialize All AppComponents
-	const auto appComponentId = DynamicTypeManager::IndexOf(StaticType<IAppComponent>::Id).id;
-	const auto updatableComponentId = DynamicTypeManager::IndexOf(StaticType<IAppComponentUpdateLister>::Id).id;
+	const auto appComponentId = DynamicTypeManager::TypeOf(StaticType<IAppComponent>::Id).id;
+	const auto updatableComponentId = DynamicTypeManager::TypeOf(StaticType<IAppComponentUpdateLister>::Id).id;
 	for (auto&& type : DynamicTypeManager::Types())
 	{
 		if (type.isAbstract)
 			continue;
 		if (!type.IsChildOf(appComponentId))
 			continue;
-
-		auto component = reinterpret_cast<IAppComponent*>(type.constructor());
+		Reflectable* ref = static_cast<Reflectable*>(type.constructor());
+		auto component = static_cast<IAppComponent*>(ref);
 		auto uniquePtr = std::unique_ptr<IAppComponent>(component);
 
 		Application::_components.emplace(type.id, std::move(uniquePtr));
 
 		if (type.IsChildOf(updatableComponentId))
 		{
-			auto updatable = reinterpret_cast<IAppComponentUpdateLister*>(component);
+			auto updatable = DynamicTypeManager::XCast<IAppComponentUpdateLister>(ref);
 			Application::_updatableComponents.emplace(type.id, updatable);
 		}
 		

@@ -13,6 +13,7 @@ namespace Egliss
 	{
 		friend class Resource;
 	public:
+		Resources() : IApplicationComponent(StaticType<Resources>::Id){}
 		const std::vector<std::shared_ptr<Resource>>& GetDynamicReosurces() const
 		{
 			return this->_dynamicResource;
@@ -25,7 +26,6 @@ namespace Egliss
 
 			return itr->second;
 		}
-
 
 		virtual void Initialize() override;
 		virtual void Finalize() override;

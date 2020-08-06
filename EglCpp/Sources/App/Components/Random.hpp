@@ -7,7 +7,7 @@ namespace Egliss
 	class Random : public IApplicationComponent
 	{
 	public:
-		Random() = default;
+		Random() : IApplicationComponent(StaticType<Resources>::Id) {};
 		~Random() = default;
 
 		virtual void Initialize() override;

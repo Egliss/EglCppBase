@@ -16,7 +16,7 @@ namespace Egliss
     public:
         virtual ~FpsController() = default;
 
-        FpsController() noexcept(false) :
+        FpsController() noexcept(false) : IApplicationComponent(StaticType<FpsController>::Id),
             m_elapsedTicks(0),
             m_totalTicks(0),
             m_leftOverTicks(0),
@@ -85,7 +85,6 @@ namespace Egliss
             m_qpcSecondCounter = 0;
         }
 
-        // Update timer state, calling the specified Update function the appropriate number of times.
         template<typename TUpdate>
         void Tick(const TUpdate& update)
         {
@@ -100,11 +99,9 @@ namespace Egliss
             m_qpcLastTime = currentTime;
             m_qpcSecondCounter += timeDelta;
 
-            // Clamp excessively large time deltas (e.g. after paused in the debugger).
             if (timeDelta > m_qpcMaxDelta)
                 timeDelta = m_qpcMaxDelta;
 
-            // Convert QPC units into a canonical tick format. This cannot overflow due to the previous clamp.
             timeDelta *= TicksPerSecond;
             timeDelta /= static_cast<uint64_t>(m_qpcFrequency.QuadPart);
 
@@ -164,23 +161,19 @@ namespace Egliss
         }
 
     private:
-        // Source timing data uses QPC units.
         LARGE_INTEGER m_qpcFrequency;
         LARGE_INTEGER m_qpcLastTime;
         uint64_t m_qpcMaxDelta;
 
-        // Derived timing data uses a canonical tick format.
         uint64_t m_elapsedTicks;
         uint64_t m_totalTicks;
         uint64_t m_leftOverTicks;
 
-        // Members for tracking the framerate.
         uint32_t m_frameCount;
         uint32_t m_framesPerSecond;
         uint32_t m_framesThisSecond;
         uint64_t m_qpcSecondCounter;
 
-        // Members for configuring fixed timestep mode.
         bool m_isFixedTimeStep;
         uint64_t m_targetElapsedTicks;
 };
