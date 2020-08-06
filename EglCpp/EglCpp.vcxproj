@@ -110,7 +110,7 @@
       </EnableEnhancedInstructionSet>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnableModules>true</EnableModules>
@@ -145,7 +145,7 @@
       </EnableEnhancedInstructionSet>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnableModules>true</EnableModules>
@@ -180,7 +180,7 @@
       </EnableEnhancedInstructionSet>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnableModules>true</EnableModules>
@@ -215,7 +215,7 @@
       </EnableEnhancedInstructionSet>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnableModules>true</EnableModules>
@@ -257,6 +257,7 @@
     <ClCompile Include="Sources\Math\Quaternion.cpp" />
     <ClCompile Include="Sources\Reflection\DynamicType.cpp" />
     <ClCompile Include="Sources\App\Components\Random.cpp" />
+    <ClCompile Include="Sources\Reflection\Reflectable.cpp" />
     <ClCompile Include="Sources\Utility\DateTime.cpp" />
     <ClCompile Include="Sources\Utility\StreamReader.cpp" />
     <ClCompile Include="Sources\Utility\StreamWriter.cpp" />
@@ -289,7 +290,7 @@
     <ClInclude Include="Sources\Math\Vector4.hpp" />
     <ClInclude Include="Sources\Math\XMath.hpp" />
     <ClInclude Include="Sources\Reflection\DynamicType.hpp" />
-    <ClInclude Include="Sources\Reflection\IReflectable.hpp" />
+    <ClInclude Include="Sources\Reflection\Reflectable.hpp" />
     <ClInclude Include="Sources\Reflection\StaticType.hpp" />
     <ClInclude Include="Sources\Utility\DateTime.hpp" />
     <ClInclude Include="Sources\Utility\Event.hpp" />

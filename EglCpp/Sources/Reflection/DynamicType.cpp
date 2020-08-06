@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "DynamicType.hpp"
 
-#include "IReflectable.hpp"
+#include "Reflectable.hpp"
 #include "../App/IApplicationComponent.hpp"
 #include "../App/Components/FpsController.hpp"
 #include "../App/Components/HardwareInput.hpp"
@@ -19,8 +19,8 @@ std::unordered_map<std::string, int> DynamicTypeManager::_typesindices;
 
 void DynamicTypeManager::Initialize()
 {
-	_indexedTypes.emplace_back(0, "Egliss::IReflectable", true,std::vector<int>({}),[](){return nullptr; });
-	_typesindices.emplace("Egliss::IReflectable"s, 0);
+	_indexedTypes.emplace_back(0, "Egliss::Reflection::Reflectable", true,std::vector<int>({}),[](){return nullptr; });
+	_typesindices.emplace("Egliss::Reflection::Reflectable"s, 0);
 	_indexedTypes.emplace_back(1, "Egliss::IApplicationComponent", true,std::vector<int>({0}),[](){return nullptr; });
 	_typesindices.emplace("Egliss::IApplicationComponent"s, 1);
 	_indexedTypes.emplace_back(2, "Egliss::FpsController", false,std::vector<int>({0 ,1}),[](){return new Egliss::FpsController(); });

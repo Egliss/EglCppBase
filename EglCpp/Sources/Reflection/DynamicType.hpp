@@ -47,21 +47,37 @@ namespace Egliss::Reflection
 		{
 			return _indexedTypes;
 		}
-		static const DynamicTypeDescription& IndexOf(int index)
+		static const DynamicTypeDescription& TypeOf(int typeId)
 		{
-			return _indexedTypes[index];
+			return _indexedTypes[typeId];
 		}
-		static const DynamicTypeDescription& QueryType(const std::string& typeName)
+		static const DynamicTypeDescription& TypeOf(const std::string& typeName)
 		{
 			auto index = _typesindices.at(typeName);
-			return IndexOf(index);
+			return TypeOf(index);
 		}
-		static const DynamicTypeDescription* FindByTypeName(const std::string& typeName)
+		static const DynamicTypeDescription* Find(int typeId)
+		{
+			if (typeId < 0 || typeId > static_cast<int>(_indexedTypes.size()))
+				return nullptr;
+
+			return &_indexedTypes[typeId];
+		}
+		static const DynamicTypeDescription* Find(const std::string& typeName)
 		{
 			const auto index = _typesindices.find(typeName);
 			if (index == _typesindices.end())
 				return nullptr;
 			return &_indexedTypes[index->second];
+		}
+
+		template<class T>
+		static T* XCast(Reflectable* ptr)
+		{
+			// TODO 代替手段はreinterpretで派生に戻してTへ戻してからreinterpretでIReflectableにするラムダを用意
+			// これでアドレスがズレたままでIReflectableに戻るのでそれをTへ戻す
+			// ただしこの実装で進める場合は速度が微妙に足りない
+			return dynamic_cast<T*>(ptr);
 		}
 
 	private:
