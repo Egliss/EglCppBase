@@ -46,7 +46,7 @@ HardwareInput::InputState HardwareInput::GetKeyboardInput(int keyCode)
     e |= tracker.pressed.IsKeyUp(key) ? 2 : 0;
     e |= tracker.released.IsKeyDown(key) ? 4 : 0;
     e |= tracker.released.IsKeyDown(key) ? 8 : 0;
-    auto ee = StringUtility::Format("%d", e);
+    auto ee = StringUtility::Format("{0}", e);
     OutputDebugStringA(ee.data());
     return static_cast<HardwareInput::InputState>(e);
 }

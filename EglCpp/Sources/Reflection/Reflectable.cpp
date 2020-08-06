@@ -10,11 +10,11 @@ void Reflectable::Validate(int typeId)
 	if (this->TryFastValidate(typeId))
 		return;
 	if (DynamicTypeManager::Find(typeId) == nullptr)
-		throw std::exception(StringUtility::Format("inputed type id(%d) not found", typeId).c_str());
+		throw std::exception(StringUtility::Format("inputed type id({0}) not found", typeId).c_str());
 	if (DynamicTypeManager::Find(TypeId) == nullptr)
-		throw std::exception(StringUtility::Format("instance saved type id(%d) not found", TypeId).c_str());
+		throw std::exception(StringUtility::Format("instance saved type id({0}) not found", TypeId).c_str());
 	
-	auto text = StringUtility::Format("instance saved type id is %s(%d) but, input type is %s(%d). please check deriver type's constructor.",
+	auto text = StringUtility::Format("instance saved type id is {0}({1}) but, input type is {2}({3}). please check deriver type's constructor.",
 									  DynamicTypeManager::TypeOf(typeId).name,
 									  DynamicTypeManager::TypeOf(typeId).id,
 									  DynamicTypeManager::TypeOf(TypeId).name,
