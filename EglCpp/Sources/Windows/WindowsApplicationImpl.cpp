@@ -95,15 +95,14 @@ bool WindowsApplicationImpl::Initialize(IApplicationInitializeArg&& arg)
 
 void WindowsApplicationImpl::Finalize()
 {
-
+	Rendering::DirectXManager::Finalize();
 }
-
 void WindowsApplicationImpl::Update()
 {
 	Application::GetAppComponent<FpsController>().Tick([]()
 	{
 		Application::Update();
-		Rendering::DirectXManager::GetInstance().Render();
+		Rendering::DirectXManager::Instance()->Render();
 	});
 	// UpdateWindow(this->_hwnd);
 }

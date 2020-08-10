@@ -5,6 +5,12 @@
 
 using namespace Egliss;
 
+Resource::Resource()
+{
+	static int InternalIndex = 0;
+	this->_internalIndex = InternalIndex++;
+}
+
 void Resource::Register(std::shared_ptr<Resource> resource)
 {
 	if (!resource)

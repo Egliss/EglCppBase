@@ -8,6 +8,7 @@ namespace Egliss
 	class Resource
 	{
 	public:
+		Resource();
 		virtual ~Resource() = default;
 
 		const std::string& Key() const
@@ -27,8 +28,7 @@ namespace Egliss
 		}
 	protected:
 		std::weak_ptr<Resource> _ownRef;
+		int _internalIndex;
 		std::string _key;
-
-		Resource() = default;
 	};
 }

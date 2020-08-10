@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "Resources.hpp"
 
-#include "Windows/Rendering/Texture2D.hpp"
+// #include "Windows/Rendering/Texture2D.hpp"
 
 using namespace Egliss;
 
 void Resources::Initialize()
 {
 	// insert core resource
-	Rendering::Texture2D::Create("Icon", "Resources/app_icon.png");
+	// Rendering::Texture2D::Create("Icon", "Resources/app_icon.png");
 }
 
 void Resources::Finalize()
