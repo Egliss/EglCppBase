@@ -1,6 +1,6 @@
 [submodule "EglCpp/External/fmt"]
 	path = EglCpp/External/fmt
 	url = git@github.com:fmtlib/fmt.git
-[submodule "EglCpp/External/DirectXTK12"]
-	path = EglCpp/External/DirectXTK12
-	url = git@github.com:microsoft/DirectXTK12.git
+[submodule "EglCpp/External/DirectXTK"]
+	path = EglCpp/External/DirectXTK
+	url = git@github.com:microsoft/DirectXTK.git
