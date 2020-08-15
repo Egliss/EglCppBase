@@ -121,12 +121,10 @@ LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam,
 					impl._isMinimized = true;
 					impl.TrySuspend();
 				}
+				break;
 			}
 			else if (wParam == SIZE_MAXSHOW)
 			{
-				//	auto style = GetWindowLongA(hWnd, GWL_EXSTYLE);
-	            // SetWindowLongA(hWnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
-	            // SetLayeredWindowAttributes(hWnd,RGB(0, 0, 0),0, LWA_COLORKEY);
 				if (impl._isMinimized)
 				{
 					impl._isMinimized = false;
@@ -138,7 +136,14 @@ LRESULT WindowsApplicationImpl::ProcCall(HWND hWnd, UINT message, WPARAM wParam,
 				impl._size.x = static_cast<float>(LOWORD(lParam));
 				impl._size.y = static_cast<float>(HIWORD(lParam));
 				impl._onResized.Call(impl._size);
+				break;
 			}
+			RECT rect;
+			GetClientRect(hWnd, &rect);
+			impl._size.x = static_cast<float>(rect.right - rect.left);
+			impl._size.y = static_cast<float>(rect.bottom - rect.top);
+			impl._onResized.Call(impl._size);
+
 			break;
 		}
 		case WM_ENTERSIZEMOVE:
