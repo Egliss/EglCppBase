@@ -12,7 +12,7 @@ StreamReader::StreamReader(const std::filesystem::path& path, IOMode type) :
 	this->Open();
 }
 
-StreamReader& StreamReader::operator=(StreamReader&& param)
+StreamReader& StreamReader::operator=(StreamReader&& param) noexcept
 {
 	this->_stream = std::move(param._stream);
 	this->_path = std::move(param._path);
@@ -49,6 +49,17 @@ std::string StreamReader::ReadToEnd()
 void StreamReader::ReadToEnd(std::stringstream& buffer)
 {
 	buffer << this->_stream.rdbuf();
+}
+
+std::vector<unsigned char> StreamReader::ReadAllBytes()
+{
+	this->_stream.seekg(0, std::ios::end);
+	const auto length = this->_stream.tellg();
+	this->_stream.seekg(0, std::ios::beg);
+
+	std::vector<unsigned char> buffer(length);
+	this->_stream.read(reinterpret_cast<char*>(&buffer[0]), length);
+	return buffer;
 }
 
 bool StreamReader::Open()

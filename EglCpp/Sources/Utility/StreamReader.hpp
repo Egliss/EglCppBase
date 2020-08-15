@@ -16,7 +16,7 @@ namespace Egliss
 		}
 
 		StreamReader& operator=(const StreamReader&) = delete;
-		StreamReader& operator=(StreamReader&& param);
+		StreamReader& operator=(StreamReader&& param) noexcept;
 
 		~StreamReader()
 		{
@@ -29,6 +29,7 @@ namespace Egliss
 		std::string ReadLine();
 		std::string ReadToEnd();
 		void ReadToEnd(std::stringstream& buffer);
+		std::vector<unsigned char>ReadAllBytes();
 
 		template<class T>
 		void BinaryRead(T& val)
