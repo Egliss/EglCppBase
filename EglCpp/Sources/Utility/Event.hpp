@@ -6,28 +6,23 @@
 
 namespace Egliss
 {
-	template<class T>
-	class IEvent
-	{
-	};
 	// not interface
 	// Event's public method only class
-	template<class T, class ...Args>
-	class IEvent<T(Args ...)>
+	template<class EventT, class FunctionT>
+	class IEvent
 	{
-		using FunctionT = std::function<T(Args ...)>;
 	public:
 		void inline Add(FunctionT&& action)
 		{
-			static_cast<T&>(this)->Add(std::move(action));
+			const_cast<EventT*>(static_cast<const EventT*>(this))->Add(std::move(action));
 		}
 		void inline Clear()
 		{
-			static_cast<T&>(this)->Clear();
+			const_cast<EventT*>(static_cast<const EventT*>(this))->Clear();
 		}
 		int inline Count()const
 		{
-			return static_cast<T&>(this)->Count();
+			return static_cast<const EventT*>(this)->Count();
 		}
 	};
 
@@ -41,17 +36,17 @@ namespace Egliss
 	};
 
 	template<class T, class ...Args>
-	class Event<T(Args ...)> : public IEvent<T(Args ...)>
+	class Event<T(Args ...)> : public IEvent<Event<T(Args ...)>, std::function<T(Args ...)>>
 	{
-		using FunctionT = std::function<T(Args ...)>;
-
 		template<class U>
 		static constexpr bool IsVoid = std::is_same_v<U, void>;
-
 	public:
+		using FunctionT = std::function<T(Args ...)>;
+		using IEventT = IEvent<Event<T(Args ...)>, std::function<T(Args ...)>>;
+
 		void Add(FunctionT&& action)
 		{
-			this->_functions.push_back(std::move(action));
+			this->_functions.emplace_back(std::move(action));
 		}
 		void Clear()
 		{
@@ -61,7 +56,7 @@ namespace Egliss
 		{
 			return (int)this->_functions.size();
 		}
-		IEvent<T(Args ...)> AsIEvent()
+		IEventT& AsIEvent()
 		{
 			return *this;
 		}

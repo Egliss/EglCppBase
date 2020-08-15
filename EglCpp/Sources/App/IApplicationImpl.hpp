@@ -19,11 +19,11 @@ namespace Egliss
 		virtual void Finalize() = 0;
 		virtual void Update() = 0;
 		virtual void Resize(Vector2) = 0;
-		virtual IEvent<void()> OnSuspend() = 0;
-		virtual IEvent<void()> OnResumed() = 0;
-		virtual IEvent<void()> OnActivated() = 0;
-		virtual IEvent<void()> OnDeactivated() = 0;
-		virtual IEvent<void(Vector2)> OnResized() = 0;
+		virtual Event<void()>::IEventT OnSuspend() = 0;
+		virtual Event<void()>::IEventT OnResumed() = 0;
+		virtual Event<void()>::IEventT OnActivated() = 0;
+		virtual Event<void()>::IEventT OnDeactivated() = 0;
+		virtual Event<void(Vector2)>::IEventT OnResized() = 0;
 		virtual std::string GetName() const = 0;
 		virtual Vector2 WindowSize() const = 0;
 	protected:

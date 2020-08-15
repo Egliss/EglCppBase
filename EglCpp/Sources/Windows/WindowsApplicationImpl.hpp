@@ -20,11 +20,11 @@ namespace Egliss
 		virtual void Finalize() override;
 		virtual void Update() override;
 		virtual std::string GetName() const override { return "Windows"; }
-		virtual IEvent<void()> OnSuspend() { return this->_onSuspend; }
-		virtual IEvent<void()> OnResumed() { return this->_onResumed; }
-		virtual IEvent<void()> OnActivated() { return this->_onActivated; }
-		virtual IEvent<void()> OnDeactivated() { return this->_onDeactivated; }
-		virtual IEvent<void(Vector2)> OnResized() { return this->_onResized; }
+		virtual Event<void()>::IEventT OnSuspend() { return this->_onSuspend; }
+		virtual Event<void()>::IEventT OnResumed() { return this->_onResumed; }
+		virtual Event<void()>::IEventT OnActivated() { return this->_onActivated; }
+		virtual Event<void()>::IEventT OnDeactivated() { return this->_onDeactivated; }
+		virtual Event<void(Vector2)>::IEventT OnResized() { return this->_onResized; }
 		virtual void Resize(Vector2 size) override;
 		virtual Vector2 WindowSize() const override;
 
