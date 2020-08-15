@@ -12,18 +12,23 @@ namespace Egliss
 	class IEvent
 	{
 	public:
+		IEvent(const IEvent&) = delete;
+		IEvent& operator=(const IEvent&) = delete;
+
 		void inline Add(FunctionT&& action)
 		{
-			const_cast<EventT*>(static_cast<const EventT*>(this))->Add(std::move(action));
+			const_cast<EventT*>(reinterpret_cast<const EventT*>(this))->Add(std::move(action));
 		}
 		void inline Clear()
 		{
-			const_cast<EventT*>(static_cast<const EventT*>(this))->Clear();
+			const_cast<EventT*>(reinterpret_cast<const EventT*>(this))->Clear();
 		}
 		int inline Count()const
 		{
-			return static_cast<const EventT*>(this)->Count();
+			return reinterpret_cast<const EventT*>(this)->Count();
 		}
+	protected:
+		IEvent() = default;
 	};
 
 	/// <summary>
@@ -43,6 +48,7 @@ namespace Egliss
 	public:
 		using FunctionT = std::function<T(Args ...)>;
 		using IEventT = IEvent<Event<T(Args ...)>, std::function<T(Args ...)>>;
+		using IEventRefT = IEvent<Event<T(Args ...)>, std::function<T(Args ...)>>&;
 
 		void Add(FunctionT&& action)
 		{
