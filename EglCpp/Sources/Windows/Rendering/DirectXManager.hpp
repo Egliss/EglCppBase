@@ -1,7 +1,10 @@
 #pragma once
 
 #include "DirectXShared.hpp"
+#include "../../Utility/Event.hpp"
+#include "../../Math/Vector2.hpp"
 #include "../../Math/Matrix4x4.hpp"
+
 #include <dxgi1_4.h>
 #include <memory>
 #include <array>
@@ -53,7 +56,6 @@ namespace Egliss::Rendering
         void CreateDirectXManager();
         void CreateWindowSizeDependentResources();
         void SetWindow(HWND window, int width, int height) noexcept;
-        bool WindowSizeChanged(int width, int height);
         void HandleDeviceLost();
         void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept { m_deviceNotify = deviceNotify; }
         void Present();
@@ -79,6 +81,15 @@ namespace Egliss::Rendering
         DXGI_COLOR_SPACE_TYPE   GetColorSpace() const noexcept { return m_colorSpace; }
         unsigned int            GetDeviceOptions() const noexcept { return m_options; }
 
+        Event<void()>::IEventT OnDeviceLosted()
+        {
+            this->_onDeviceLosted;
+        }
+        Event<void()>::IEventT OnDeviceRestored()
+        {
+            this->_onDeviceRestored;
+        }
+
         // Performance events
         void PIXBeginEvent(_In_z_ const wchar_t* name)
         {
@@ -99,6 +110,7 @@ namespace Egliss::Rendering
         void CreateFactory();
         void GetHardwareAdapter(IDXGIAdapter1** ppAdapter);
         void UpdateColorSpace();
+        static void WindowSizeChanged(Vector2 size);
 
         // Direct3D objects.
         Microsoft::WRL::ComPtr<IDXGIFactory2>               m_dxgiFactory;
@@ -136,6 +148,9 @@ namespace Egliss::Rendering
 
         std::unique_ptr<DirectX::SpriteFont> font;
         std::unique_ptr<DirectX::SpriteBatch> batch;
+
+        Event<void()> _onDeviceLosted;
+        Event<void()> _onDeviceRestored;
 
         static DirectXManager* m_instance;
     };

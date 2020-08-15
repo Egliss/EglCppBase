@@ -72,6 +72,9 @@ void DirectXManager::Initialize()
 
     m_instance->batch = std::make_unique<SpriteBatch>(m_instance->GetD3DDeviceContext());
     m_instance->font = std::make_unique<SpriteFont>(m_instance->GetD3DDevice(), AppConfiguration::DefaultFont.data());
+
+    // register events
+    impl.OnResized().Add(DirectXManager::WindowSizeChanged);
 }
 
 void DirectXManager::Finalize()
@@ -445,32 +448,26 @@ void DirectXManager::SetWindow(HWND window, int width, int height) noexcept
 }
 
 // This method is called when the Win32 window changes size
-bool DirectXManager::WindowSizeChanged(int width, int height)
+void DirectXManager::WindowSizeChanged(Vector2 size)
 {
     RECT newRc;
     newRc.left = newRc.top = 0;
-    newRc.right = width;
-    newRc.bottom = height;
-    if (newRc == m_outputSize)
+    newRc.right = static_cast<long>(size.x);
+    newRc.bottom = static_cast<long>(size.y);
+    if (newRc == DirectXManager::Instance()->m_outputSize)
     {
         // Handle color space settings for HDR
-        UpdateColorSpace();
-
-        return false;
+        DirectXManager::Instance()->UpdateColorSpace();
     }
 
-    m_outputSize = newRc;
-    CreateWindowSizeDependentResources();
-    return true;
+    DirectXManager::Instance()->m_outputSize = newRc;
+    DirectXManager::Instance()->CreateWindowSizeDependentResources();
 }
 
 // Recreate all device resources and set them back to the current state.
 void DirectXManager::HandleDeviceLost()
 {
-    if (m_deviceNotify)
-    {
-        m_deviceNotify->OnDeviceLost();
-    }
+    this->_onDeviceLosted.Call();
 
     m_d3dDepthStencilView.Reset();
     m_d3dRenderTargetView.Reset();
@@ -496,10 +493,7 @@ void DirectXManager::HandleDeviceLost()
     CreateDirectXManager();
     CreateWindowSizeDependentResources();
 
-    if (m_deviceNotify)
-    {
-        m_deviceNotify->OnDeviceRestored();
-    }
+    this->_onDeviceRestored.Call();
 }
 
 // Present the contents of the swap chain to the screen.
