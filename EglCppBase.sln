@@ -4,10 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EglCpp", "EglCpp\EglCpp.vcxproj", "{00338F81-BB59-4BD7-91F6-5CFA5B8B98AB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7329B02D-C504-482A-A156-181D48CE493C} = {7329B02D-C504-482A-A156-181D48CE493C}
+		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E} = {E0B52AE7-E160-4D32-BF3F-910B785E5A8E}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CppReflection", "CppReflection\CppReflection.csproj", "{E843C64D-891A-41D9-99EF-D794786FC52C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTK_Desktop_2019", "EglCpp\External\DirectXTK\DirectXTK_Desktop_2019.vcxproj", "{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakeSpriteFont", "EglCpp\External\DirectXTK\MakeSpriteFont\MakeSpriteFont.csproj", "{7329B02D-C504-482A-A156-181D48CE493C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +67,22 @@ Global
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release|x64.Build.0 = Release|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release|x86.ActiveCfg = Release|Win32
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release|x86.Build.0 = Release|Win32
+		{7329B02D-C504-482A-A156-181D48CE493C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Debug|x64.Build.0 = Debug|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Debug|x86.Build.0 = Debug|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Release|ARM64.Build.0 = Release|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Release|x64.ActiveCfg = Release|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Release|x64.Build.0 = Release|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Release|x86.ActiveCfg = Release|Any CPU
+		{7329B02D-C504-482A-A156-181D48CE493C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
