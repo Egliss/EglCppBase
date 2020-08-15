@@ -7,7 +7,7 @@
 #include <array>
 #include <wrl/wrappers/corewrappers.h>
 
-#include <GeometricPrimitive.h>
+#include <SpriteFont.h>
 #include <GraphicsMemory.h>
 #include <Effects.h>
 #include <CommonStates.h>
@@ -28,9 +28,9 @@ namespace Egliss::Rendering
     class DirectXManager
     {
     public:
-        static const unsigned int c_FlipPresent = 0x1;
-        static const unsigned int c_AllowTearing = 0x2;
-        static const unsigned int c_EnableHDR = 0x4;
+        static const unsigned int FlipPresent = 0x1;
+        static const unsigned int AllowTearing = 0x2;
+        static const unsigned int EnableHDR = 0x4;
 
         static void Initialize();
         static void Finalize();
@@ -38,10 +38,10 @@ namespace Egliss::Rendering
         static void Render();
 
         DirectXManager(DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM,
-                        DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT,
-                        UINT backBufferCount = 2,
-                        D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_10_0,
-                        unsigned int flags = c_FlipPresent) noexcept;
+                       DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT,
+                       UINT backBufferCount = 2,
+                       D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_10_0,
+                       unsigned int flags = FlipPresent | AllowTearing | EnableHDR) noexcept;
         ~DirectXManager() = default;
 
         DirectXManager(DirectXManager&&) = default;
@@ -133,6 +133,9 @@ namespace Egliss::Rendering
 
         // The IDeviceNotify can be held directly as it owns the DeviceResources.
         IDeviceNotify* m_deviceNotify;
+
+        std::unique_ptr<DirectX::SpriteFont> font;
+        std::unique_ptr<DirectX::SpriteBatch> batch;
 
         static DirectXManager* m_instance;
     };

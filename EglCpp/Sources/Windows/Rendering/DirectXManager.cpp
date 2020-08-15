@@ -7,19 +7,21 @@
 #include <dxgidebug.h>
 #include <dxgi1_6.h>
 
+#include "../../App/AppConfiguration.hpp"
+#include "../../App/Application.hpp"
+#include "../../App/Components/FpsController.hpp"
+#include "../../Utility/StringUtility.hpp"
+#include "../WindowsApplicationImpl.hpp"
 #include "../DirectXUtility.hpp"
+#include "DirectXManager.hpp"
+#include <Effects.h>
+
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
-#include "DirectXManager.hpp"
 
 using namespace DirectX;
 using namespace Egliss::Rendering;
-
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wcovered-switch-default"
-#pragma clang diagnostic ignored "-Wswitch-enum"
-#endif
 
 #pragma warning(disable : 4061)
 
@@ -62,7 +64,14 @@ DirectXManager* DirectXManager::m_instance = nullptr;
 
 void DirectXManager::Initialize()
 {
+    auto& impl = Application::GetImplAs<WinImpl>();
     m_instance = new DirectXManager();
+    m_instance->SetWindow(impl.GetHWND(), (int)impl.WindowSize().x, (int)impl.WindowSize().y);
+    m_instance->CreateDirectXManager();
+    m_instance->CreateWindowSizeDependentResources();
+
+    m_instance->batch = std::make_unique<SpriteBatch>(m_instance->GetD3DDeviceContext());
+    m_instance->font = std::make_unique<SpriteFont>(m_instance->GetD3DDevice(), AppConfiguration::DefaultFont.data());
 }
 
 void DirectXManager::Finalize()
@@ -77,7 +86,23 @@ DirectXManager* DirectXManager::Instance()
 
 void DirectXManager::Render()
 {
-
+    auto controller = Application::GetAppComponent<FpsController>();
+    static double t = controller.GetTotalSeconds();
+    if (t < controller.GetTotalSeconds() - 1.0)
+    {
+        OutputDebugStringA((std::to_string(controller.GetFramesPerSecond()) + "\n").data());
+        t = controller.GetTotalSeconds();
+    }
+    const float ClearColor[4] = { 0.2f,0.2f,1.f,1.f };
+    m_instance->m_d3dContext->ClearRenderTargetView(m_instance->m_d3dRenderTargetView.Get(), ClearColor);
+    m_instance->m_d3dContext->ClearDepthStencilView(m_instance->m_d3dDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 0U, 0);
+    m_instance->m_d3dContext->OMSetRenderTargets(1, m_instance->m_d3dRenderTargetView.GetAddressOf(), m_instance->m_d3dDepthStencilView.Get());
+    m_instance->batch->Begin();
+    m_instance->font->DrawString(m_instance->batch.get(),
+                                 StringUtility::Format("frame: {0}", controller.GetFramesPerSecond()).data(),
+                                 XMFLOAT2(100, 100));
+    m_instance->batch->End();
+    m_instance->Present();
 }
 
 // Constructor for DirectXManager.
@@ -96,7 +121,7 @@ DirectXManager::DirectXManager(
     m_d3dFeatureLevel(D3D_FEATURE_LEVEL_9_1),
     m_outputSize{ 0, 0, 1, 1 },
     m_colorSpace(DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709),
-    m_options(flags | c_FlipPresent),
+    m_options(flags | FlipPresent),
     m_deviceNotify(nullptr)
 {
 }
@@ -121,7 +146,7 @@ void DirectXManager::CreateDirectXManager()
     CreateFactory();
 
     // Determines whether tearing support is available for fullscreen borderless windows.
-    if (m_options & c_AllowTearing)
+    if (m_options & AllowTearing)
     {
         BOOL allowTearing = FALSE;
 
@@ -134,7 +159,7 @@ void DirectXManager::CreateDirectXManager()
 
         if (FAILED(hr) || !allowTearing)
         {
-            m_options &= ~c_AllowTearing;
+            m_options &= ~AllowTearing;
         #ifdef _DEBUG
             OutputDebugStringA("WARNING: Variable refresh rate displays not supported");
         #endif
@@ -142,12 +167,12 @@ void DirectXManager::CreateDirectXManager()
     }
 
     // Disable HDR if we are on an OS that can't support FLIP swap effects
-    if (m_options & c_EnableHDR)
+    if (m_options & EnableHDR)
     {
         ComPtr<IDXGIFactory5> factory5;
         if (FAILED(m_dxgiFactory.As(&factory5)))
         {
-            m_options &= ~c_EnableHDR;
+            m_options &= ~EnableHDR;
         #ifdef _DEBUG
             OutputDebugStringA("WARNING: HDR swap chains not supported");
         #endif
@@ -155,12 +180,12 @@ void DirectXManager::CreateDirectXManager()
     }
 
     // Disable FLIP if not on a supporting OS
-    if (m_options & c_FlipPresent)
+    if (m_options & FlipPresent)
     {
         ComPtr<IDXGIFactory4> factory4;
         if (FAILED(m_dxgiFactory.As(&factory4)))
         {
-            m_options &= ~c_FlipPresent;
+            m_options &= ~FlipPresent;
         #ifdef _DEBUG
             OutputDebugStringA("INFO: Flip swap effects not supported");
         #endif
@@ -295,7 +320,7 @@ void DirectXManager::CreateWindowSizeDependentResources()
     // Determine the render target size in pixels.
     const UINT backBufferWidth = std::max<UINT>(static_cast<UINT>(m_outputSize.right - m_outputSize.left), 1u);
     const UINT backBufferHeight = std::max<UINT>(static_cast<UINT>(m_outputSize.bottom - m_outputSize.top), 1u);
-    const DXGI_FORMAT backBufferFormat = (m_options & (c_FlipPresent | c_AllowTearing | c_EnableHDR)) ? NoSRGB(m_backBufferFormat) : m_backBufferFormat;
+    const DXGI_FORMAT backBufferFormat = (m_options & (FlipPresent | AllowTearing | EnableHDR)) ? NoSRGB(m_backBufferFormat) : m_backBufferFormat;
 
     if (m_swapChain)
     {
@@ -305,7 +330,7 @@ void DirectXManager::CreateWindowSizeDependentResources()
             backBufferWidth,
             backBufferHeight,
             backBufferFormat,
-            (m_options & c_AllowTearing) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0u
+            (m_options & AllowTearing) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0u
         );
 
         if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
@@ -340,9 +365,9 @@ void DirectXManager::CreateWindowSizeDependentResources()
         swapChainDesc.SampleDesc.Count = 1;
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
-        swapChainDesc.SwapEffect = (m_options & (c_FlipPresent | c_AllowTearing | c_EnableHDR)) ? DXGI_SWAP_EFFECT_FLIP_DISCARD : DXGI_SWAP_EFFECT_DISCARD;
+        swapChainDesc.SwapEffect = (m_options & (FlipPresent | AllowTearing | EnableHDR)) ? DXGI_SWAP_EFFECT_FLIP_DISCARD : DXGI_SWAP_EFFECT_DISCARD;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
-        swapChainDesc.Flags = (m_options & c_AllowTearing) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0u;
+        swapChainDesc.Flags = (m_options & AllowTearing) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0u;
 
         DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc = {};
         fsSwapChainDesc.Windowed = TRUE;
@@ -406,6 +431,7 @@ void DirectXManager::CreateWindowSizeDependentResources()
         static_cast<float>(backBufferWidth),
         static_cast<float>(backBufferHeight)
     );
+    m_d3dContext->RSSetViewports(1, &m_screenViewport);
 }
 
 // This method is called when the Win32 window is created (or re-created).
@@ -480,7 +506,7 @@ void DirectXManager::HandleDeviceLost()
 void DirectXManager::Present()
 {
     HRESULT hr = E_FAIL;
-    if (m_options & c_AllowTearing)
+    if (m_options & AllowTearing)
     {
         // Recommended to always use tearing if supported when using a sync interval of 0.
         hr = m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
@@ -659,7 +685,7 @@ void DirectXManager::UpdateColorSpace()
     }
 #endif
 
-    if ((m_options & c_EnableHDR) && isDisplayHDR10)
+    if ((m_options & EnableHDR) && isDisplayHDR10)
     {
         switch (m_backBufferFormat)
         {
