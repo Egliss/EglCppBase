@@ -17,6 +17,8 @@ namespace Egliss
 		}
 
 		void Register(std::shared_ptr<Resource> resource);
+		virtual bool Initialize();
+		virtual void Finalize();
 
 		template<class T>
 		std::shared_ptr<T> AsRef() const
@@ -26,9 +28,15 @@ namespace Egliss
 
 			return this->_ownRef.lock();
 		}
+		bool Initialized() const
+		{
+			return this->_initialized;
+		}
 	protected:
+		std::string _key = "";
+	private:
 		std::weak_ptr<Resource> _ownRef;
-		int _internalIndex;
-		std::string _key;
+		int _internalIndex = -1;
+		bool _initialized = false;
 	};
 }

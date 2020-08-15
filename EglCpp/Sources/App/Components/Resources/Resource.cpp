@@ -7,8 +7,6 @@ using namespace Egliss;
 
 Resource::Resource()
 {
-	static int InternalIndex = 0;
-	this->_internalIndex = InternalIndex++;
 }
 
 void Resource::Register(std::shared_ptr<Resource> resource)
@@ -20,4 +18,19 @@ void Resource::Register(std::shared_ptr<Resource> resource)
 	this->_ownRef = resource;
 	
 	Application::GetAppComponent<Resources>().Register(resource);
+}
+
+bool Resource::Initialize()
+{
+	static int InternalIndex = 0;
+	this->_internalIndex = InternalIndex++;
+	return true;
+}
+
+void Resource::Finalize()
+{
+	this->_internalIndex = -1;
+	this->_initialized = false;
+	this->_ownRef = std::shared_ptr<Resource>();
+	this->_key += "(finalized)";
 }
