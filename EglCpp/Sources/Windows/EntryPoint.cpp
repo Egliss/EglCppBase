@@ -6,21 +6,23 @@
 #include "Windows/WindowsApplicationImpl.hpp"
 #include "Windows/WindowsInitializeArg.hpp"
 
+using namespace Egliss;
+
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-	auto impl = std::make_unique<Egliss::WindowsApplicationImpl>();
-	Egliss::WindowsInitializeArg arg;
+	auto impl = std::make_unique<WindowsApplicationImpl>();
+	WindowsInitializeArg arg;
 	arg.hInstance = hInstance;
 	arg.hPrevInstance = hPrevInstance;
 	arg.lpCmdLine = lpCmdLine;
 	arg.nCmdShow = nCmdShow;
 
-	bool initialized = Egliss::Application::Initialize(std::move(impl), std::move(arg));
+	bool initialized = Application::Initialize(std::move(impl), std::move(arg));
 	if (!initialized)
 		return false;
 
 	MSG message;
-	auto& app = Egliss::Application::GetImplAs<Egliss::WindowsApplicationImpl>();
+	auto& app = Application::GetImplAs<WindowsApplicationImpl>();
 
 	while (true)
 	{
@@ -37,6 +39,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 			app.Update();
 		}
 	}
+
+	Application::Finalize();
 
 	return static_cast<int>(message.wParam);
 }

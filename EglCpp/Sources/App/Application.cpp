@@ -56,6 +56,10 @@ bool Application::Initialize(std::unique_ptr<IApplicationImpl>&& impl, IApplicat
 void Application::Finalize()
 {
 	Application::_updatableComponents.clear();
+	for (auto&& component : Application::_components)
+	{
+		component.second->Finalize();
+	}
 	Application::_components.clear();
 	Application::_impl->Finalize();
 	Application::_impl.reset(nullptr);
