@@ -264,6 +264,9 @@
     <ClCompile Include="Sources\Utility\StringUtility.cpp" />
     <ClCompile Include="Sources\Windows\Dialog\Dialog.cpp" />
     <ClCompile Include="Sources\Windows\Rendering\DirectXManager.cpp" />
+    <ClCompile Include="Sources\Windows\Rendering\RenderingController.cpp" />
+    <ClCompile Include="Sources\Windows\Rendering\Shader\Shader.cpp" />
+    <ClCompile Include="Sources\Windows\Rendering\Shader\ShaderSource.cpp" />
     <ClCompile Include="Sources\Windows\WindowsApplicationImpl.cpp" />
     <ClCompile Include="Sources\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -307,6 +310,11 @@
     <ClInclude Include="Sources\Windows\Rendering\DirectXManager.hpp" />
     <ClInclude Include="Sources\Windows\Rendering\DirectXShared.hpp" />
     <ClInclude Include="Sources\Win.hpp" />
+    <ClInclude Include="Sources\Windows\Rendering\RenderingController.hpp" />
+    <ClInclude Include="Sources\Windows\Rendering\Shader\Shader.hpp" />
+    <ClInclude Include="Sources\Windows\Rendering\Shader\ShaderIncludeImpl.hpp" />
+    <ClInclude Include="Sources\Windows\Rendering\Shader\ShaderSource.hpp" />
+    <ClInclude Include="Sources\Windows\Rendering\UI\Text.hpp" />
     <ClInclude Include="Sources\Windows\WindowsApplicationImpl.hpp" />
     <ClInclude Include="Sources\App\IApplicationImpl.hpp" />
     <ClInclude Include="Sources\App\IApplicationInitializeArg.hpp" />
