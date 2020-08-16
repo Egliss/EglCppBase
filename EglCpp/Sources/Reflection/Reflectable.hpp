@@ -11,13 +11,13 @@ namespace Egliss::Reflection
 	public:
 		Reflectable(int typeId) noexcept : TypeId(typeId) { }
 		virtual ~Reflectable() noexcept { };
-	private:
-		const int TypeId = -1;
 
 		void Validate(int typeId);
 		bool TryFastValidate(int typeId) noexcept
 		{
 			return typeId == TypeId;
 		}
+
+		const int TypeId = -1;
 	};
 }
