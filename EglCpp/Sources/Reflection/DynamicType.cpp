@@ -9,6 +9,7 @@
 #include "../App/Components/Resources/Resources.hpp"
 #include "../App/Components/Random.hpp"
 #include "../App/IApplicationComponent.hpp"
+#include "../SceneSystem/Component.hpp"
 
 using namespace Egliss::Reflection;
 using namespace std::string_literals;
@@ -33,4 +34,6 @@ void DynamicTypeManager::Initialize()
 	_typesindices.emplace("Egliss::Random"s, 5);
 	_indexedTypes.emplace_back(6, "Egliss::IAppComponentUpdateLister", true,std::vector<int>({0}),[](){return nullptr; });
 	_typesindices.emplace("Egliss::IAppComponentUpdateLister"s, 6);
+	_indexedTypes.emplace_back(7, "Egliss::Component", false,std::vector<int>({0}),[](){return new Egliss::Component(); });
+	_typesindices.emplace("Egliss::Component"s, 7);
 }

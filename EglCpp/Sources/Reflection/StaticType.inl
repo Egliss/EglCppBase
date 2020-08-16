@@ -7,6 +7,7 @@ namespace Egliss { class HardwareInput; }
 namespace Egliss { class Resources; }
 namespace Egliss { class Random; }
 namespace Egliss { class IAppComponentUpdateLister; }
+namespace Egliss { class Component; }
 
 namespace Egliss::Reflection
 {
@@ -17,5 +18,6 @@ namespace Egliss::Reflection
             template<> class StaticTypeDescription<Egliss::Resources> { public: static constexpr int Id = 4; static constexpr std::string_view Name = "Egliss::Resources"; };
             template<> class StaticTypeDescription<Egliss::Random> { public: static constexpr int Id = 5; static constexpr std::string_view Name = "Egliss::Random"; };
         template<> class StaticTypeDescription<Egliss::IAppComponentUpdateLister> { public: static constexpr int Id = 6; static constexpr std::string_view Name = "Egliss::IAppComponentUpdateLister"; };
+        template<> class StaticTypeDescription<Egliss::Component> { public: static constexpr int Id = 7; static constexpr std::string_view Name = "Egliss::Component"; };
     
 }

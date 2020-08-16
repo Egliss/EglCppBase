@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "Application.hpp"
 #include "AppConfiguration.hpp"
-#include "Reflection/StaticType.hpp"
-#include "Reflection/DynamicType.hpp"
+#include "../Reflection/StaticType.hpp"
+#include "../Reflection/DynamicType.hpp"
+
 
 using namespace Egliss;
 

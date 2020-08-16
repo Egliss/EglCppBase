@@ -258,6 +258,8 @@
     <ClCompile Include="Sources\Reflection\DynamicType.cpp" />
     <ClCompile Include="Sources\App\Components\Random.cpp" />
     <ClCompile Include="Sources\Reflection\Reflectable.cpp" />
+    <ClCompile Include="Sources\SceneSystem\Component.cpp" />
+    <ClCompile Include="Sources\SceneSystem\GameObject.cpp" />
     <ClCompile Include="Sources\Utility\DateTime.cpp" />
     <ClCompile Include="Sources\Utility\StreamReader.cpp" />
     <ClCompile Include="Sources\Utility\StreamWriter.cpp" />
@@ -294,6 +296,10 @@
     <ClInclude Include="Sources\Reflection\DynamicType.hpp" />
     <ClInclude Include="Sources\Reflection\Reflectable.hpp" />
     <ClInclude Include="Sources\Reflection\StaticType.hpp" />
+    <ClInclude Include="Sources\SceneSystem\Component.hpp" />
+    <ClInclude Include="Sources\SceneSystem\GameObject.hpp" />
+    <ClInclude Include="Sources\Utility\AlignedemoryPool.hpp" />
+    <ClInclude Include="Sources\SceneSystem\Scene.hpp" />
     <ClInclude Include="Sources\Utility\DateTime.hpp" />
     <ClInclude Include="Sources\Utility\Event.hpp" />
     <ClInclude Include="Sources\Utility\IndexlizedDictionary.hpp" />
